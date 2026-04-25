@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Digital Platform Monitoring Infrastructure of School and Facilities — manage attendance, exams, fees, and issue reports." />
+  <title>anirudhha</title>
+  <link rel="stylesheet" href="style1.css" />
+</head>
+<body>
+
+  <!-- ====== Animated Background ====== -->
+  <div class="bg-animated">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <!-- ============================================
+       PAGE 1: ROLE SELECTION
+       ============================================ -->
+  <section id="role-page" class="page role-page active">
+    <div class="brand">
+      <span class="logo-icon">🏫</span>
+      <h1>Digital Platform Monitoring<br />Infrastructure of School &amp; Facilities</h1>
+      <p>Select your role to continue</p>
+    </div>
+
+    <div class="role-cards">
+      <div class="role-card" id="role-faculty" onclick="selectRole('faculty')">
+        <span class="role-icon">👨‍🏫</span>
+        <span class="role-name">Faculty</span>
+        <span class="role-desc">Staff &amp; Teachers</span>
+      </div>
+      <div class="role-card" id="role-student" onclick="selectRole('student')">
+        <span class="role-icon">🎓</span>
+        <span class="role-name">Student</span>
+        <span class="role-desc">Learner Access</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       PAGE 2: LOGIN
+       ============================================ -->
+  <section id="login-page" class="page login-page">
+    <div class="login-container">
+      <div class="login-header">
+        <button class="back-btn" id="login-back-btn" onclick="goBack()">←</button>
+        <span class="avatar-icon" id="login-avatar">👨‍🏫</span>
+        <h2 id="login-title">Faculty Login</h2>
+        <p id="login-subtitle">Enter your credentials to access the portal</p>
+      </div>
+
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="username">Username / ID</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="username" placeholder="Enter your username" required autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password" />
+          </div>
+        </div>
+
+        <button type="submit" class="login-btn" id="login-submit-btn">Sign In →</button>
+
+        <div class="login-error" id="login-error">
+          ⚠️ Invalid username or password. Please try again.
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============================================
+       PAGE 3: DASHBOARD
+       ============================================ -->
+  <section id="dashboard-page" class="page dashboard-page">
+
+    <!-- --- Top Navigation Bar --- -->
+    <nav class="top-nav">
+      <div class="nav-brand">
+        <span class="nav-logo">🏫</span>
+        <h2>DPMISF Portal</h2>
+      </div>
+
+      <div class="nav-right">
+        <div class="user-badge">
+          <span class="user-avatar">👤</span>
+          <span id="nav-username">User</span>
+        </div>
+
+        <!-- Three-dot menu -->
+        <div class="menu-container">
+          <button class="three-dot-btn" id="three-dot-btn" onclick="toggleMenu()" aria-label="Menu">⋮</button>
+
+          <div class="dropdown-menu" id="dropdown-menu">
+            <div class="menu-label">Quick Actions</div>
+            <button class="menu-item" onclick="switchTab('report')">
+              <span class="menu-icon">📝</span> Issue Report
+            </button>
+            <button class="menu-item" onclick="switchTab('problems')">
+              <span class="menu-icon">⚠️</span> Report Problem
+            </button>
+            <div class="menu-divider"></div>
+            <div class="menu-label">Academics</div>
+            <button class="menu-item" onclick="switchTab('exams')">
+              <span class="menu-icon">📋</span> Exams
+            </button>
+            <button class="menu-item" onclick="switchTab('fees')">
+              <span class="menu-icon">💰</span> Fees
+            </button>
+            <button class="menu-item" onclick="switchTab('timetable')">
+              <span class="menu-icon">📅</span> Timetable
+            </button>
+            <div class="menu-divider"></div>
+            <button class="menu-item danger" onclick="handleLogout()">
+              <span class="menu-icon">🚪</span> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- --- Dashboard Body --- -->
+    <div class="dashboard-content">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner">
+        <h2 id="welcome-text">👋 Welcome back!</h2>
+        <p>Digital Platform Monitoring Infrastructure of School &amp; Facilities</p>
+        <div class="date-badge">
+          <span>📅</span>
+          <span id="current-date"></span>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="section-tabs">
+        <button class="tab-btn active" data-tab="attendance" onclick="switchTab('attendance')">📊 Attendance</button>
+        <button class="tab-btn" data-tab="exams" onclick="switchTab('exams')">📋 Exams</button>
+        <button class="tab-btn" data-tab="fees" onclick="switchTab('fees')">💰 Fees</button>
+        <button class="tab-btn" data-tab="timetable" onclick="switchTab('timetable')">📅 Timetable</button>
+        <button class="tab-btn" data-tab="report" onclick="switchTab('report')">📝 Issue Report</button>
+        <button class="tab-btn" data-tab="problems" onclick="switchTab('problems')">⚠️ Problems</button>
+      </div>
+
+      <!-- ====== TAB: Attendance ====== -->
+      <div class="tab-panel active" id="panel-attendance">
+        <div class="attendance-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-icon">📊</span>
+              <span class="stat-badge up">↑ 2.5%</span>
+            </div>
+            <div class="stat-value">92%</div>
+            <div class="stat-label">Overall Attendance</div>
+            <div class="progress-bar-wrap">
+              <div class="progress-label">
+                <span>Progress</span><span>92 / 100</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: 92%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-icon">✅</span>
+              <span class="stat-badge up">+3</span>
+            </div>
+            <div class="stat-value">185</div>
+            <div class="stat-label">Total Days Present</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-icon">❌</span>
+              <span class="stat-badge down">−1</span>
+            </div>
+            <div class="stat-value">15</div>
+            <div class="stat-label">Total Days Absent</div>
+          </div>
+        </div>
+
+        <!-- Recent Attendance Table -->
+        <div class="attendance-table-card">
+          <h3>📅 Recent Attendance Log</h3>
+          <table class="att-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>28 Mar 2026</td>
+                <td>Mathematics</td>
+                <td><span class="status-dot present">Present</span></td>
+                <td>09:00 AM</td>
+              </tr>
+              <tr>
+                <td>28 Mar 2026</td>
+                <td>Physics</td>
+                <td><span class="status-dot present">Present</span></td>
+                <td>10:30 AM</td>
+              </tr>
+              <tr>
+                <td>27 Mar 2026</td>
+                <td>English</td>
+                <td><span class="status-dot late">Late</span></td>
+                <td>09:15 AM</td>
+              </tr>
+              <tr>
+                <td>27 Mar 2026</td>
+                <td>Chemistry</td>
+                <td><span class="status-dot present">Present</span></td>
+                <td>11:00 AM</td>
+              </tr>
+              <tr>
+                <td>26 Mar 2026</td>
+                <td>Computer Science</td>
+                <td><span class="status-dot absent">Absent</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>26 Mar 2026</td>
+                <td>History</td>
+                <td><span class="status-dot present">Present</span></td>
+                <td>02:00 PM</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ====== TAB: Exams ====== -->
+      <div class="tab-panel" id="panel-exams">
+        <div class="panel-card">
+          <h3>📋 Upcoming Examinations</h3>
+          <ul class="panel-list">
+            <li>
+              <span class="item-label">📐 Mathematics — Unit Test 3</span>
+              <span class="item-value"><span class="badge badge-warning">02 Apr 2026</span></span>
+            </li>
+            <li>
+              <span class="item-label">🔬 Physics — Mid Semester</span>
+              <span class="item-value"><span class="badge badge-warning">08 Apr 2026</span></span>
+            </li>
+            <li>
+              <span class="item-label">📖 English — Essay Writing</span>
+              <span class="item-value"><span class="badge badge-info">12 Apr 2026</span></span>
+            </li>
+            <li>
+              <span class="item-label">🧪 Chemistry — Practical</span>
+              <span class="item-value"><span class="badge badge-info">15 Apr 2026</span></span>
+            </li>
+          </ul>
+        </div>
+        <div class="panel-card">
+          <h3>📊 Past Results</h3>
+          <ul class="panel-list">
+            <li>
+              <span class="item-label">📐 Mathematics — Unit Test 2</span>
+              <span class="item-value"><span class="badge badge-success">85 / 100</span></span>
+            </li>
+            <li>
+              <span class="item-label">🔬 Physics — Quiz 4</span>
+              <span class="item-value"><span class="badge badge-success">78 / 100</span></span>
+            </li>
+            <li>
+              <span class="item-label">📖 English — Grammar Test</span>
+              <span class="item-value"><span class="badge badge-warning">62 / 100</span></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ====== TAB: Fees ====== -->
+      <div class="tab-panel" id="panel-fees">
+        <div class="panel-card">
+          <h3>💰 Fee Summary</h3>
+          <ul class="panel-list">
+            <li>
+              <span class="item-label">🏫 Tuition Fee (Annual)</span>
+              <span class="item-value"><span class="badge badge-success">Paid</span> ₹45,000</span>
+            </li>
+            <li>
+              <span class="item-label">🚌 Transport Fee (Q3)</span>
+              <span class="item-value"><span class="badge badge-danger">Due</span> ₹8,500</span>
+            </li>
+            <li>
+              <span class="item-label">🔬 Lab Fee</span>
+              <span class="item-value"><span class="badge badge-success">Paid</span> ₹3,000</span>
+            </li>
+            <li>
+              <span class="item-label">📚 Library Fee</span>
+              <span class="item-value"><span class="badge badge-success">Paid</span> ₹1,200</span>
+            </li>
+            <li>
+              <span class="item-label">🏋️ Sports Fee</span>
+              <span class="item-value"><span class="badge badge-warning">Pending</span> ₹2,500</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ====== TAB: Timetable ====== -->
+      <div class="tab-panel" id="panel-timetable">
+        <div class="panel-card">
+          <h3>📅 Today's Timetable — Monday</h3>
+          <ul class="panel-list">
+            <li>
+              <span class="item-label">⏰ 09:00 – 09:45</span>
+              <span class="item-value">Mathematics</span>
+            </li>
+            <li>
+              <span class="item-label">⏰ 10:00 – 10:45</span>
+              <span class="item-value">Physics</span>
+            </li>
+            <li>
+              <span class="item-label">⏰ 11:00 – 11:45</span>
+              <span class="item-value">English</span>
+            </li>
+            <li>
+              <span class="item-label">🍽️ 12:00 – 12:45</span>
+              <span class="item-value">Lunch Break</span>
+            </li>
+            <li>
+              <span class="item-label">⏰ 01:00 – 01:45</span>
+              <span class="item-value">Chemistry</span>
+            </li>
+            <li>
+              <span class="item-label">⏰ 02:00 – 02:45</span>
+              <span class="item-value">Computer Science</span>
+            </li>
+            <li>
+              <span class="item-label">⏰ 03:00 – 03:45</span>
+              <span class="item-value">History</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ====== TAB: Issue Report ====== -->
+      <div class="tab-panel" id="panel-report">
+        <div class="panel-card">
+          <h3>📝 Submit an Issue Report</h3>
+          <form class="report-form" id="issue-report-form" onsubmit="submitReport(event, 'issue')">
+            <select id="report-category" required>
+              <option value="" disabled selected>Select Report Category</option>
+              <option value="infrastructure">🏗️ Infrastructure Issue</option>
+              <option value="academic">📚 Academic Concern</option>
+              <option value="transport">🚌 Transport Issue</option>
+              <option value="hygiene">🧹 Cleanliness / Hygiene</option>
+              <option value="safety">🔒 Safety Concern</option>
+              <option value="other">📌 Other</option>
+            </select>
+            <input type="text" id="report-subject" placeholder="Brief subject of the issue" required />
+            <textarea id="report-detail" placeholder="Describe the issue in detail..." required></textarea>
+            <button type="submit" class="submit-btn">🚀 Submit Report</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ====== TAB: Report Problem ====== -->
+      <div class="tab-panel" id="panel-problems">
+        <div class="panel-card">
+          <h3>⚠️ Report a Problem</h3>
+          <form class="report-form" id="problem-report-form" onsubmit="submitReport(event, 'problem')">
+            <select id="problem-type" required>
+              <option value="" disabled selected>Select Problem Type</option>
+              <option value="electrical">⚡ Electrical / Power</option>
+              <option value="plumbing">🚰 Plumbing / Water</option>
+              <option value="furniture">🪑 Broken Furniture</option>
+              <option value="equipment">💻 IT / Equipment</option>
+              <option value="building">🏢 Building / Structural</option>
+              <option value="other">📌 Other</option>
+            </select>
+            <input type="text" id="problem-location" placeholder="Location (e.g. Room 204, Lab B)" required />
+            <textarea id="problem-description" placeholder="Describe the problem in detail..." required></textarea>
+            <button type="submit" class="submit-btn">🚀 Submit Problem Report</button>
+          </form>
+        </div>
+
+        <div class="panel-card">
+          <h3>📋 Previously Reported</h3>
+          <ul class="panel-list">
+            <li>
+              <span class="item-label">💻 Projector not working — Room 301</span>
+              <span class="item-value"><span class="badge badge-warning">In Progress</span></span>
+            </li>
+            <li>
+              <span class="item-label">🚰 Water leakage — Washroom Block C</span>
+              <span class="item-value"><span class="badge badge-success">Resolved</span></span>
+            </li>
+            <li>
+              <span class="item-label">🪑 Broken desk — Room 105</span>
+              <span class="item-value"><span class="badge badge-danger">Pending</span></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <span id="toast-icon">✅</span>
+    <span id="toast-message">Action completed!</span>
+  </div>
+
+  <script src="scrpit1.js"></script>
+</body>
+</html>
