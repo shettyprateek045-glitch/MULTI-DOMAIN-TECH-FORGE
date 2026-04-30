@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Digital Platform Monitoring Infrastructure of School and Facilities — manage attendance, exams, fees, and issue reports." />
-  <title>anirudhha</title>
+  <title>DIGITAL INFRASTRUCTURE MONITORING SYSTEM</title>
   <link rel="stylesheet" href="style1.css" />
 </head>
 <body>
@@ -15,7 +15,6 @@
     <div class="orb"></div>
     <div class="orb"></div>
   </div>
-
   <!-- ============================================
        PAGE 1: ROLE SELECTION
        ============================================ -->
@@ -27,10 +26,15 @@
     </div>
 
     <div class="role-cards">
-      <div class="role-card" id="role-faculty" onclick="selectRole('faculty')">
+      <div class="role-card" id="role-admin" onclick="selectRole('admin')">
+        <span class="role-icon">🏛️</span>
+        <span class="role-name">Administration</span>
+        <span class="role-desc">Government / District</span>
+      </div>
+      <div class="role-card" id="role-staff" onclick="selectRole('faculty')">
         <span class="role-icon">👨‍🏫</span>
-        <span class="role-name">Faculty</span>
-        <span class="role-desc">Staff &amp; Teachers</span>
+        <span class="role-name">School Staff</span>
+        <span class="role-desc">Faculty & Teachers</span>
       </div>
       <div class="role-card" id="role-student" onclick="selectRole('student')">
         <span class="role-icon">🎓</span>
@@ -57,7 +61,7 @@
           <label for="username">Username / ID</label>
           <div class="input-wrap">
             <span class="input-icon">👤</span>
-            <input type="text" id="username" placeholder="Enter your username" required autocomplete="username" />
+            <input type="text" id="username" placeholder="Enter your username" autocomplete="username" />
           </div>
         </div>
 
@@ -65,7 +69,7 @@
           <label for="password">Password</label>
           <div class="input-wrap">
             <span class="input-icon">🔒</span>
-            <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password" />
+            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
           </div>
         </div>
 
@@ -75,6 +79,20 @@
           ⚠️ Invalid username or password. Please try again.
         </div>
       </form>
+
+      <!-- Face ID Login Container -->
+      <div id="face-id-container" style="display: none; text-align: center;">
+         <div class="video-wrap" style="position:relative; width: 100%; max-width: 300px; margin: 0 auto 20px; border-radius: 12px; overflow: hidden; border: 2px solid var(--primary); min-height: 200px; background: rgba(0,0,0,0.05); display: flex; align-items:center; justify-content:center;">
+            <video id="face-video" autoplay playsinline style="width: 100%; display: none;"></video>
+            <canvas id="face-canvas" style="display:none; width:100%;"></canvas>
+            <div id="camera-placeholder" style="color: var(--text-muted); font-weight: bold;">📸 Camera Off</div>
+         </div>
+         <p id="face-status" style="color: var(--text-secondary); font-weight: 600; margin-bottom: 12px;">Initializing Camera...</p>
+         <div style="display: flex; gap: 8px; justify-content: center;">
+             <button type="button" class="submit-btn" id="capture-btn" onclick="manualCapture()" disabled style="display:inline-block;">Capture Photo</button>
+             <button type="button" class="submit-btn secondary" id="login-face-btn" onclick="executeLogin('admin')" style="display:none;">Login</button>
+         </div>
+      </div>
     </div>
   </section>
 
@@ -92,7 +110,7 @@
 
       <div class="nav-right">
         <div class="user-badge">
-          <span class="user-avatar">👤</span>
+          <span class="user-avatar" id="nav-avatar">👤</span>
           <span id="nav-username">User</span>
         </div>
 
@@ -108,15 +126,15 @@
             <button class="menu-item" onclick="switchTab('problems')">
               <span class="menu-icon">⚠️</span> Report Problem
             </button>
-            <div class="menu-divider"></div>
-            <div class="menu-label">Academics</div>
-            <button class="menu-item" onclick="switchTab('exams')">
+            <div class="menu-divider" id="menu-divider-academics"></div>
+            <div class="menu-label" id="menu-label-academics">Academics</div>
+            <button class="menu-item" id="menu-btn-exams" onclick="switchTab('exams')">
               <span class="menu-icon">📋</span> Exams
             </button>
-            <button class="menu-item" onclick="switchTab('fees')">
+            <button class="menu-item" id="menu-btn-fees" onclick="switchTab('fees')">
               <span class="menu-icon">💰</span> Fees
             </button>
-            <button class="menu-item" onclick="switchTab('timetable')">
+            <button class="menu-item" id="menu-btn-timetable" onclick="switchTab('timetable')">
               <span class="menu-icon">📅</span> Timetable
             </button>
             <div class="menu-divider"></div>
@@ -142,13 +160,15 @@
       </div>
 
       <!-- Tab Navigation -->
-      <div class="section-tabs">
+      <div class="section-tabs" id="main-tabs">
         <button class="tab-btn active" data-tab="attendance" onclick="switchTab('attendance')">📊 Attendance</button>
         <button class="tab-btn" data-tab="exams" onclick="switchTab('exams')">📋 Exams</button>
         <button class="tab-btn" data-tab="fees" onclick="switchTab('fees')">💰 Fees</button>
         <button class="tab-btn" data-tab="timetable" onclick="switchTab('timetable')">📅 Timetable</button>
         <button class="tab-btn" data-tab="report" onclick="switchTab('report')">📝 Issue Report</button>
-        <button class="tab-btn" data-tab="problems" onclick="switchTab('problems')">⚠️ Problems</button>
+        <button class="tab-btn" data-tab="problems" onclick="switchTab('problems')">⚠️ Report Problem</button>
+        <button class="tab-btn" data-tab="maintenance" onclick="switchTab('maintenance')" style="display:none;">👨‍🔧 Maintenance Tasks</button>
+        <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')" style="display:none;">📈 Admin Dashboard</button>
       </div>
 
       <!-- ====== TAB: Attendance ====== -->
@@ -157,33 +177,33 @@
           <div class="stat-card">
             <div class="stat-header">
               <span class="stat-icon">📊</span>
-              <span class="stat-badge up">↑ 2.5%</span>
+              <span class="stat-badge up" id="att-trend-badge">↑ 2.5%</span>
             </div>
-            <div class="stat-value">92%</div>
+            <div class="stat-value" id="att-overall-pct">92%</div>
             <div class="stat-label">Overall Attendance</div>
             <div class="progress-bar-wrap">
               <div class="progress-label">
-                <span>Progress</span><span>92 / 100</span>
+                <span>Progress</span><span id="att-progress-label">92 / 100</span>
               </div>
               <div class="progress-track">
-                <div class="progress-fill" style="width: 92%;"></div>
+                <div class="progress-fill" id="att-progress-fill" style="width: 92%;"></div>
               </div>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-header">
               <span class="stat-icon">✅</span>
-              <span class="stat-badge up">+3</span>
+              <span class="stat-badge up" id="att-present-badge">+3</span>
             </div>
-            <div class="stat-value">185</div>
+            <div class="stat-value" id="att-present-val">185</div>
             <div class="stat-label">Total Days Present</div>
           </div>
           <div class="stat-card">
             <div class="stat-header">
               <span class="stat-icon">❌</span>
-              <span class="stat-badge down">−1</span>
+              <span class="stat-badge down" id="att-absent-badge">−1</span>
             </div>
-            <div class="stat-value">15</div>
+            <div class="stat-value" id="att-absent-val">15</div>
             <div class="stat-label">Total Days Absent</div>
           </div>
         </div>
@@ -200,7 +220,7 @@
                 <th>Time</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="att-log-body">
               <tr>
                 <td>28 Mar 2026</td>
                 <td>Mathematics</td>
@@ -371,11 +391,39 @@
         </div>
       </div>
 
-      <!-- ====== TAB: Report Problem ====== -->
+      <!-- ====== TAB: Report Problem (Workflow Step 1) ====== -->
       <div class="tab-panel" id="panel-problems">
+        <!-- Visual Flowchart -->
+        <div class="workflow-tracker" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 16px; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+           <div class="step active" style="text-align: center; color: var(--primary);">
+              <div style="font-size: 24px;">📝</div>
+              <div style="font-size: 0.7rem; font-weight: bold;">1. Report</div>
+           </div>
+           <div class="step" style="text-align: center; color: var(--text-muted); opacity: 0.5;">
+              <div style="font-size: 24px;">💾</div>
+              <div style="font-size: 0.7rem; font-weight: bold;">2. Store</div>
+           </div>
+           <div class="step" style="text-align: center; color: var(--text-muted); opacity: 0.5;">
+              <div style="font-size: 24px;">🧠</div>
+              <div style="font-size: 0.7rem; font-weight: bold;">3. AI Priority</div>
+           </div>
+           <div class="step" style="text-align: center; color: var(--text-muted); opacity: 0.5;">
+              <div style="font-size: 24px;">👨‍🔧</div>
+              <div style="font-size: 0.7rem; font-weight: bold;">4. Assign</div>
+           </div>
+           <div class="step" style="text-align: center; color: var(--text-muted); opacity: 0.5;">
+              <div style="font-size: 24px;">🔄</div>
+              <div style="font-size: 0.7rem; font-weight: bold;">5. Update</div>
+           </div>
+           <div class="step" style="text-align: center; color: var(--text-muted); opacity: 0.5;">
+              <div style="font-size: 24px;">📊</div>
+              <div style="font-size: 0.7rem; font-weight: bold;">6. Monitor</div>
+           </div>
+        </div>
+
         <div class="panel-card">
-          <h3>⚠️ Report a Problem</h3>
-          <form class="report-form" id="problem-report-form" onsubmit="submitReport(event, 'problem')">
+          <h3>⚠️ Report a Problem (Staff View)</h3>
+          <form class="report-form" id="problem-report-form" onsubmit="submitNewIssue(event)">
             <select id="problem-type" required>
               <option value="" disabled selected>Select Problem Type</option>
               <option value="electrical">⚡ Electrical / Power</option>
@@ -387,26 +435,115 @@
             </select>
             <input type="text" id="problem-location" placeholder="Location (e.g. Room 204, Lab B)" required />
             <textarea id="problem-description" placeholder="Describe the problem in detail..." required></textarea>
-            <button type="submit" class="submit-btn">🚀 Submit Problem Report</button>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 4px;">
+              <label for="problem-image" class="file-label" style="flex: 1; text-align: center; margin-bottom: 0;">📁 Upload Photo</label>
+              <button type="button" class="file-label" id="start-problem-cam-btn" onclick="startProblemCamera()" style="flex: 1; margin-bottom: 0; background: rgba(0,0,0,0.05); color: var(--text);">📸 Take Photo</button>
+            </div>
+            <input type="file" id="problem-image" accept="image/*;capture=camera" class="file-input" style="display:none;" onchange="document.getElementById('file-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen'; document.getElementById('problem-camera-container').style.display='none'; if(typeof stopProblemCamera === 'function') stopProblemCamera(); if(typeof problemImageCaptured !== 'undefined') problemImageCaptured=false;" />
+            <div id="file-name" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px; text-align: center;">No file chosen</div>
+
+            <!-- Problem Camera Container -->
+            <div id="problem-camera-container" style="display: none; text-align: center; margin-bottom: 15px;">
+               <div class="video-wrap" style="position:relative; width: 100%; border-radius: 8px; overflow: hidden; border: 2px solid var(--primary); background: rgba(0,0,0,0.05); display: flex; align-items:center; justify-content:center; margin-bottom: 10px; min-height: 150px;">
+                  <video id="problem-video" autoplay playsinline style="width: 100%; display: none;"></video>
+                  <canvas id="problem-canvas" style="display:none; width:100%;"></canvas>
+                  <div id="problem-cam-placeholder">Loading Camera...</div>
+               </div>
+               <p id="problem-cam-status" style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 10px; font-weight: 600;">Initializing...</p>
+               <button type="button" class="submit-btn" id="problem-capture-btn" onclick="captureProblemPhoto()" style="padding: 8px 16px; font-size: 0.9rem; display: none;">Capture Photo</button>
+               <button type="button" class="submit-btn secondary" id="problem-retake-btn" onclick="startProblemCamera()" style="display:none; padding: 8px 16px; font-size: 0.9rem;">Retake Photo</button>
+            </div>
+
+            <button type="submit" class="submit-btn">🚀 Submit to Smart Workflow</button>
           </form>
         </div>
+      </div>
 
+      <!-- ====== TAB: Maintenance (Workflow Step 5) ====== -->
+      <div class="tab-panel" id="panel-maintenance">
         <div class="panel-card">
-          <h3>📋 Previously Reported</h3>
-          <ul class="panel-list">
-            <li>
-              <span class="item-label">💻 Projector not working — Room 301</span>
-              <span class="item-value"><span class="badge badge-warning">In Progress</span></span>
-            </li>
-            <li>
-              <span class="item-label">🚰 Water leakage — Washroom Block C</span>
-              <span class="item-value"><span class="badge badge-success">Resolved</span></span>
-            </li>
-            <li>
-              <span class="item-label">🪑 Broken desk — Room 105</span>
-              <span class="item-value"><span class="badge badge-danger">Pending</span></span>
+          <h3>👨‍🔧 Assigned Maintenance Tasks</h3>
+          <p class="analytics-desc">View and update the status of issues assigned to your team.</p>
+          <ul class="panel-list" id="maintenance-task-list">
+             <!-- Dynamically populated, fallback hardcoded items -->
+             <li>
+              <span class="item-label">🚰 Water leakage — Washroom Block C (Critical)</span>
+              <div style="display:flex; gap: 8px;">
+                 <button class="submit-btn secondary" style="padding: 4px 10px; font-size:0.75rem; margin-top:0;" onclick="showToast('✅', 'Status updated to In Progress')">Start Work</button>
+                 <button class="submit-btn" style="padding: 4px 10px; font-size:0.75rem;" onclick="showToast('✅', 'Workflow Step 5 complete. Status updated to Resolved.')">Mark Resolved</button>
+              </div>
             </li>
           </ul>
+        </div>
+      </div>
+      
+      <!-- ====== TAB: Analytics (Workflow Step 6) ====== -->
+      <div class="tab-panel" id="panel-analytics">
+        <div class="panel-card analytics-header">
+          <h3>📈 Admin Monitoring Dashboard</h3>
+          <p class="analytics-desc">Real-time analytics powered by our smart classification algorithm.</p>
+          <div class="health-overview">
+            <div class="health-score-card">
+              <div class="score-circle">
+                <svg viewBox="0 0 36 36" class="circular-chart">
+                  <path class="circle-bg"
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path class="circle" id="health-circle-path"
+                    stroke-dasharray="0, 100"
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <text x="18" y="20.35" class="percentage" id="health-score-text">--%</text>
+                </svg>
+              </div>
+              <div class="score-details">
+                <h4>System Health Score</h4>
+                <p id="health-status-text">Calculating...</p>
+              </div>
+            </div>
+            <div class="quick-stats">
+              <div class="q-stat">
+                <span class="q-val danger" id="stat-critical">0</span>
+                <span class="q-lbl">Critical Issues</span>
+              </div>
+              <div class="q-stat">
+                <span class="q-val warning" id="stat-active">0</span>
+                <span class="q-lbl">Active Issues</span>
+              </div>
+              <div class="q-stat">
+                <span class="q-val success" id="stat-resolved">0</span>
+                <span class="q-lbl">Resolved Today</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Issue Prediction & Testing Console -->
+        <div class="prediction-grid">
+          <div class="panel-card">
+            <h3>🤖 Smart Issue Classification</h3>
+            <p class="item-label">Our Natural Language Algorithm parses text to predict the severity category.</p>
+            <div class="prediction-demo">
+               <textarea id="demo-issue-text" placeholder="Type a sample issue description (e.g., 'There is a massive water leak pooling near the server room!')"></textarea>
+               <button type="button" class="submit-btn" onclick="runPredictionDemo()">Analyze Severity</button>
+               <div id="demo-prediction-result" class="prediction-result" style="display:none;">
+                 <p>Predicted Severity:</p> <span id="pred-badge" class="badge"></span>
+               </div>
+            </div>
+          </div>
+          <div class="panel-card">
+            <h3>🧪 System Validation Logs</h3>
+             <p class="item-label">Automated testing of our models ensuring performance and reliability.</p>
+             <button type="button" class="submit-btn secondary" onclick="runValidationSuite()">Run Test Suite</button>
+             <div class="console-box" id="test-console">
+> System idle. Ready for testing.
+             </div>
+          </div>
         </div>
       </div>
 
