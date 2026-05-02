@@ -324,6 +324,8 @@ function executeLogin(username) {
   if (currentRole === 'admin') {
     allTabBtns.forEach(btn => btn.style.display = 'inline-block');
     academicEls.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = ''; });
+    // Load faculty reports into maintenance tab
+    loadMaintenanceReports();
     switchTab('analytics');
     showToast('✅', 'Admin permissions loaded.');
   } else if (currentRole === 'faculty') {
@@ -518,8 +520,12 @@ function switchTab(tabName) {
 }
 
 // ---- Report / Problem Submission ----
-// ---- Global Mock Database ----
-let mockDatabase = [];
+// ---- Persistent Report Database (localStorage-backed) ----
+let mockDatabase = JSON.parse(localStorage.getItem('reportDatabase') || '[]');
+
+function saveDatabase() {
+  localStorage.setItem('reportDatabase', JSON.stringify(mockDatabase));
+}
 
 // ---- Report / Problem Submission ----
 function submitReport(e, type) {
@@ -544,29 +550,17 @@ function submitReport(e, type) {
       hasImage: false,
       priority: 'Low',
       status: 'Pending',
+      reportedBy: navUsername.textContent || 'Faculty',
       date: new Date().toISOString()
     };
 
-    // Storage
+    // Storage — persist to localStorage
     mockDatabase.push(newIssue);
+    saveDatabase();
     if (typeof infrastructureData !== 'undefined') {
       infrastructureData.totalIssues++;
       infrastructureData.active++;
       infrastructureData.low++;
-    }
-
-    // Inject dynamically into Maintenance Tab
-    const maintList = document.getElementById('maintenance-task-list');
-    if (maintList) {
-       const li = document.createElement('li');
-       li.innerHTML = `
-          <span class="item-label">${newIssue.type.toUpperCase()}: ${newIssue.description} — (${newIssue.priority})</span>
-          <div style="display:flex; gap: 8px;">
-             <button type="button" class="submit-btn secondary" style="padding: 4px 10px; font-size:0.75rem; margin-top:0;" onclick="showToast('✅', 'Status updated to In Progress')">Start Work</button>
-             <button type="button" class="submit-btn" style="padding: 4px 10px; font-size:0.75rem;" onclick="showToast('✅', 'Workflow Step 5 complete. Status updated.')">Mark Resolved</button>
-          </div>
-       `;
-       maintList.prepend(li);
     }
 
     // Reset form
@@ -596,6 +590,7 @@ function submitNewIssue(e) {
     description: description,
     hasImage: !!imageUpload || (typeof problemImageCaptured !== 'undefined' && problemImageCaptured),
     status: 'Pending',
+    reportedBy: navUsername.textContent || 'Faculty',
     date: new Date().toISOString()
   };
   
@@ -603,8 +598,9 @@ function submitNewIssue(e) {
   const priorityResult = predictSeverity(description);
   newIssue.priority = priorityResult.level;
   
-  // Storage
+  // Storage — persist to localStorage
   mockDatabase.push(newIssue);
+  saveDatabase();
   
   // Update Analytics Data dynamically
   infrastructureData.totalIssues++;
@@ -612,20 +608,6 @@ function submitNewIssue(e) {
   if (priorityResult.level === 'Critical') infrastructureData.critical++;
   if (priorityResult.level === 'Warning') infrastructureData.warning++;
   if (priorityResult.level === 'Low') infrastructureData.low++;
-  
-  // Inject dynamically into Maintenance Tab
-  const maintList = document.getElementById('maintenance-task-list');
-  if (maintList) {
-     const li = document.createElement('li');
-     li.innerHTML = `
-        <span class="item-label">${newIssue.type.toUpperCase()}: ${newIssue.description} — ${newIssue.location} (${newIssue.priority})</span>
-        <div style="display:flex; gap: 8px;">
-           <button type="button" class="submit-btn secondary" style="padding: 4px 10px; font-size:0.75rem; margin-top:0;" onclick="showToast('✅', 'Status updated to In Progress')">Start Work</button>
-           <button type="button" class="submit-btn" style="padding: 4px 10px; font-size:0.75rem;" onclick="showToast('✅', 'Workflow Step 5 complete. Status updated.')">Mark Resolved</button>
-        </div>
-     `;
-     maintList.prepend(li);
-  }
   
   showToast('✅', `Issue stored! Priority assigned: ${priorityResult.level}`);
   document.getElementById('problem-report-form').reset();
@@ -892,7 +874,7 @@ function updateAnalyticsDashboard() {
   }
 }
 
-// Hook into existing switchTab to trigger analytics update
+// Hook into existing switchTab to trigger analytics/maintenance update
 const originalSwitchTab = switchTab;
 switchTab = function(tabName) {
   originalSwitchTab(tabName);
@@ -900,7 +882,120 @@ switchTab = function(tabName) {
     // Delay slightly for animation effect
     setTimeout(updateAnalyticsDashboard, 100);
   }
+  if (tabName === 'maintenance') {
+    loadMaintenanceReports();
+  }
 };
+
+// --- Load & Render Maintenance Reports from localStorage ---
+function loadMaintenanceReports() {
+  const maintList = document.getElementById('maintenance-task-list');
+  if (!maintList) return;
+
+  // Reload from localStorage to get the latest data
+  mockDatabase = JSON.parse(localStorage.getItem('reportDatabase') || '[]');
+
+  // Clear existing list
+  maintList.innerHTML = '';
+
+  if (mockDatabase.length === 0) {
+    maintList.innerHTML = `<li style="text-align:center; color: var(--text-muted); padding: 24px 0;">
+      <span style="font-size: 2rem;">📭</span><br>
+      <span style="font-weight: 600;">No reports yet</span><br>
+      <span style="font-size: 0.85rem;">Faculty-submitted issues will appear here automatically.</span>
+    </li>`;
+    return;
+  }
+
+  // Render newest first
+  const sorted = [...mockDatabase].reverse();
+  sorted.forEach(issue => {
+    const li = document.createElement('li');
+    li.style.cssText = 'flex-direction: column; align-items: flex-start; gap: 8px;';
+
+    const priorityColor = issue.priority === 'Critical' ? 'var(--danger)' 
+                        : issue.priority === 'Warning' ? 'var(--warning)' 
+                        : 'var(--success)';
+    const priorityBadgeClass = issue.priority === 'Critical' ? 'badge-danger' 
+                             : issue.priority === 'Warning' ? 'badge-warning' 
+                             : 'badge-success';
+    const statusColor = issue.status === 'Resolved' ? 'var(--success)' 
+                      : issue.status === 'In Progress' ? 'var(--warning)' 
+                      : 'var(--text-muted)';
+
+    const dateStr = new Date(issue.date).toLocaleString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+
+    const typeIcons = {
+      electrical: '⚡', plumbing: '🚰', furniture: '🪑',
+      equipment: '💻', building: '🏢', infrastructure: '🏗️',
+      academic: '📚', transport: '🚌', hygiene: '🧹',
+      safety: '🔒', other: '📌'
+    };
+    const icon = typeIcons[issue.type] || '📌';
+
+    li.innerHTML = `
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <span class="item-label" style="font-weight: 700; font-size: 0.95rem;">
+          ${icon} ${issue.type.toUpperCase()}: ${issue.description}
+        </span>
+        <span class="badge ${priorityBadgeClass}" style="font-size: 0.7rem;">${issue.priority}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; flex-wrap: wrap; gap: 6px;">
+        <div style="font-size: 0.8rem; color: var(--text-muted);">
+          📍 ${issue.location || 'General'} &nbsp;|&nbsp; 🕐 ${dateStr} &nbsp;|&nbsp; 👤 ${issue.reportedBy || 'Faculty'}
+          &nbsp;|&nbsp; <span style="color: ${statusColor}; font-weight: 600;">● ${issue.status}</span>
+          ${issue.hasImage ? '&nbsp;|&nbsp; 📸 Photo attached' : ''}
+        </div>
+        <div style="display:flex; gap: 8px;">
+          <button type="button" class="submit-btn secondary" style="padding: 4px 10px; font-size:0.75rem; margin-top:0;"
+            onclick="updateIssueStatus('${issue.id}', 'In Progress')" ${issue.status !== 'Pending' ? 'disabled style="padding:4px 10px;font-size:0.75rem;margin-top:0;opacity:0.5;cursor:not-allowed;"' : ''}>
+            Start Work
+          </button>
+          <button type="button" class="submit-btn" style="padding: 4px 10px; font-size:0.75rem;"
+            onclick="updateIssueStatus('${issue.id}', 'Resolved')" ${issue.status === 'Resolved' ? 'disabled style="padding:4px 10px;font-size:0.75rem;opacity:0.5;cursor:not-allowed;"' : ''}>
+            Mark Resolved
+          </button>
+        </div>
+      </div>
+    `;
+    maintList.appendChild(li);
+  });
+
+  // Update the maintenance badge count
+  updateMaintenanceBadge();
+}
+
+function updateIssueStatus(issueId, newStatus) {
+  mockDatabase = JSON.parse(localStorage.getItem('reportDatabase') || '[]');
+  const issue = mockDatabase.find(i => i.id === issueId);
+  if (issue) {
+    issue.status = newStatus;
+    saveDatabase();
+
+    if (newStatus === 'Resolved') {
+      infrastructureData.resolved++;
+      infrastructureData.active = Math.max(0, infrastructureData.active - 1);
+      if (issue.priority === 'Critical') infrastructureData.critical = Math.max(0, infrastructureData.critical - 1);
+      if (issue.priority === 'Warning') infrastructureData.warning = Math.max(0, infrastructureData.warning - 1);
+      if (issue.priority === 'Low') infrastructureData.low = Math.max(0, infrastructureData.low - 1);
+      showToast('✅', 'Workflow Step 5 complete. Issue resolved!');
+    } else {
+      showToast('🔄', `Status updated to ${newStatus}`);
+    }
+    loadMaintenanceReports();
+  }
+}
+
+function updateMaintenanceBadge() {
+  const pending = mockDatabase.filter(i => i.status !== 'Resolved').length;
+  const maintTabBtn = document.querySelector('.tab-btn[data-tab="maintenance"]');
+  if (maintTabBtn) {
+    maintTabBtn.innerHTML = `👨‍🔧 Maintenance Tasks ${pending > 0 ? '<span class="tab-badge">' + pending + '</span>' : ''}`;
+  }
+}
 
 // --- 5. Interactive Demo ---
 function runPredictionDemo() {

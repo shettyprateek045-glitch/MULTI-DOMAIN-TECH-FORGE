@@ -687,6 +687,27 @@ body {
   box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--danger);
+  color: white;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 6px;
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
 /* --- Tab Content Panels --- */
 .tab-panel {
   display: none;

@@ -466,14 +466,12 @@
           <h3>👨‍🔧 Assigned Maintenance Tasks</h3>
           <p class="analytics-desc">View and update the status of issues assigned to your team.</p>
           <ul class="panel-list" id="maintenance-task-list">
-             <!-- Dynamically populated, fallback hardcoded items -->
-             <li>
-              <span class="item-label">🚰 Water leakage — Washroom Block C (Critical)</span>
-              <div style="display:flex; gap: 8px;">
-                 <button class="submit-btn secondary" style="padding: 4px 10px; font-size:0.75rem; margin-top:0;" onclick="showToast('✅', 'Status updated to In Progress')">Start Work</button>
-                 <button class="submit-btn" style="padding: 4px 10px; font-size:0.75rem;" onclick="showToast('✅', 'Workflow Step 5 complete. Status updated to Resolved.')">Mark Resolved</button>
-              </div>
-            </li>
+             <!-- Dynamically populated from localStorage -->
+             <li style="text-align:center; color: var(--text-muted); padding: 24px 0;">
+               <span style="font-size: 2rem;">📭</span><br>
+               <span style="font-weight: 600;">No reports yet</span><br>
+               <span style="font-size: 0.85rem;">Faculty-submitted issues will appear here automatically.</span>
+             </li>
           </ul>
         </div>
       </div>
