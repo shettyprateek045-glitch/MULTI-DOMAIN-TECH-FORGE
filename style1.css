@@ -7,27 +7,28 @@
 
 /* ---------- CSS Variables ---------- */
 :root {
-  --primary: #8b5cf6;       /* Violet 500 */
-  --primary-light: #c4b5fd; /* Violet 300 */
-  --primary-dark: #6d28d9;  /* Violet 700 */
-  --accent: #a855f7;        /* Purple 500 */
-  --accent-light: #e9d5ff;  /* Purple 200 */
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --success: #10b981;
-  --bg-dark: #faf5ff;       /* Very light purple background */
-  --bg-card: rgba(255, 255, 255, 0.95);
-  --bg-glass: rgba(255, 255, 255, 0.92);
-  --text-primary: #1a0633;  /* Extremely dark purple for maximum visibility */
-  --text-secondary: #2e1065; /* Dark purple for secondary text */
-  --text-muted: #4c1d95;     /* Darker purple for muted text - improved from #7c3aed */
-  --border-glass: rgba(139, 92, 246, 0.3);
-  --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.2);
+  --primary: #6366f1;       /* Indigo 500 */
+  --primary-light: #818cf8; /* Indigo 400 */
+  --primary-dark: #4f46e5;  /* Indigo 600 */
+  --accent: #06b6d4;        /* Cyan 500 */
+  --accent-light: #22d3ee;  /* Cyan 400 */
+  --danger: #f43f5e;        /* Rose 500 */
+  --warning: #f59e0b;       /* Amber 500 */
+  --success: #10b981;       /* Emerald 500 */
+  --info: #3b82f6;          /* Blue 500 */
+  --bg-dark: #0f172a;       /* Slate 900 (Deep Dark Mode) */
+  --bg-card: rgba(30, 41, 59, 0.7);
+  --bg-glass: rgba(15, 23, 42, 0.6);
+  --text-primary: #f8fafc;  /* Slate 50 */
+  --text-secondary: #cbd5e1; /* Slate 300 */
+  --text-muted: #94a3b8;     /* Slate 400 */
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
-  --radius-xl: 28px;
-  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-xl: 32px;
+  --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ---------- Reset ---------- */
@@ -67,46 +68,43 @@ body {
 .bg-animated .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.35;
-  animation: orbFloat 18s ease-in-out infinite alternate;
+  filter: blur(120px);
+  opacity: 0.4;
+  animation: orbFloat 25s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
 .bg-animated .orb:nth-child(1) {
-  width: 500px;
-  height: 500px;
-  background: var(--primary);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--primary), transparent);
   top: -10%;
   left: -5%;
-  animation-duration: 20s;
 }
 
 .bg-animated .orb:nth-child(2) {
-  width: 400px;
-  height: 400px;
-  background: var(--accent);
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--accent), transparent);
   bottom: -10%;
   right: -5%;
-  animation-duration: 25s;
   animation-delay: -5s;
 }
 
 .bg-animated .orb:nth-child(3) {
-  width: 300px;
-  height: 300px;
-  background: var(--primary-light);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation-duration: 22s;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--primary-dark), transparent);
+  top: 40%;
+  left: 60%;
   animation-delay: -10s;
 }
 
 @keyframes orbFloat {
   0% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(40px, -30px) scale(1.05); }
-  66% { transform: translate(-20px, 20px) scale(0.95); }
-  100% { transform: translate(10px, -10px) scale(1.02); }
+  33% { transform: translate(60px, -40px) scale(1.1); }
+  66% { transform: translate(-30px, 40px) scale(0.9); }
+  100% { transform: translate(20px, -20px) scale(1.05); }
 }
 
 /* ---------- Page Sections ---------- */
@@ -116,6 +114,7 @@ body {
   z-index: 1;
   min-height: 100vh;
   animation: fadeSlideIn 0.5s ease forwards;
+  will-change: transform, opacity;
 }
 
 .page.active {
@@ -153,6 +152,7 @@ body {
   margin-bottom: 16px;
   display: block;
   animation: pulse 2s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes pulse {
@@ -162,19 +162,21 @@ body {
 
 .role-page .brand h1 {
   font-family: 'Outfit', sans-serif;
-  font-size: 2rem;
+  font-size: 2.8rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+  background: linear-gradient(135deg, #fff, var(--primary-light));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  line-height: 1.2;
+  line-height: 1.1;
+  letter-spacing: -1px;
 }
 
 .role-page .brand p {
-  color: var(--text-secondary);
-  margin-top: 8px;
-  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .role-cards {
@@ -727,16 +729,18 @@ body {
 }
 
 .stat-card {
-  background: var(--bg-glass);
+  background: var(--bg-card);
   border: 1px solid var(--border-glass);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: 24px;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
   transition: var(--transition);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .stat-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
+  border-color: var(--primary-light);
   box-shadow: var(--shadow-glow);
 }
 
@@ -1025,11 +1029,11 @@ body {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  background: rgba(250, 245, 255, 0.98);
-  border: 1px solid var(--border-glass);
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-md);
   padding: 16px 24px;
-  color: var(--text-primary);
+  color: #ffffff;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
@@ -1309,4 +1313,61 @@ body {
 .file-label:hover {
   background: rgba(139, 92, 246, 0.1);
   border-color: var(--primary);
+}
+
+/* ============================================
+   PREMIUM ENGINEERING STYLES (FINISHING)
+   ============================================ */
+
+/* Metrics Glow */
+.metric-highlight {
+  background: linear-gradient(135deg, rgba(46, 213, 115, 0.15), rgba(46, 213, 115, 0.05));
+  border: 1px solid #2ed573;
+  box-shadow: 0 0 15px rgba(46, 213, 115, 0.2);
+}
+
+/* Digital Twin Pulsing Orbs */
+@keyframes orbPulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.4); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 0.7; }
+}
+
+/* QR Scanning Simulation Beam */
+.scanning-beam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+  animation: qrScanBeam 2s linear infinite;
+  z-index: 10;
+  display: none;
+}
+
+@keyframes qrScanBeam {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(200px); }
+  100% { transform: translateY(0); }
+}
+
+/* Responsive & Glass Adjustments */
+.panel-card {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+.panel-card:hover {
+  box-shadow: 0 10px 40px rgba(139, 92, 246, 0.15);
+}
+
+#predictive-alerts-list li {
+  animation: alertPulse 1.5s infinite;
+}
+
+@keyframes alertPulse {
+  0% { border-color: var(--danger); box-shadow: 0 0 0px var(--danger); }
+  50% { border-color: #ff6b6b; box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+  100% { border-color: var(--danger); box-shadow: 0 0 0px var(--danger); }
 }

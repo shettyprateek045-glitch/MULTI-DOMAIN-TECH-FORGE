@@ -1,0 +1,88 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "admin",
+      "role": "Admin",
+      "name": "System Administrator"
+    },
+    {
+      "id": "2",
+      "username": "staff1",
+      "role": "Staff",
+      "name": "John Maintenance",
+      "specialty": "Electrical"
+    },
+    {
+      "id": "3",
+      "username": "student1",
+      "role": "Student",
+      "name": "Alice Smith"
+    }
+  ],
+  "locations": [
+    {
+      "id": "room101",
+      "name": "Classroom 101",
+      "x": 150,
+      "y": 100,
+      "importance": 5
+    },
+    {
+      "id": "room102",
+      "name": "Classroom 102",
+      "x": 450,
+      "y": 100,
+      "importance": 5
+    },
+    {
+      "id": "server_room",
+      "name": "Server Room",
+      "x": 150,
+      "y": 350,
+      "importance": 10
+    },
+    {
+      "id": "lab1",
+      "name": "Computer Lab",
+      "x": 450,
+      "y": 350,
+      "importance": 8
+    },
+    {
+      "id": "hall1",
+      "name": "Main Hall",
+      "x": 300,
+      "y": 250,
+      "importance": 4
+    },
+    {
+      "id": "playground",
+      "name": "Playground",
+      "x": 600,
+      "y": 250,
+      "importance": 2
+    }
+  ],
+  "assets": [
+    {
+      "id": "proj1",
+      "name": "Projector",
+      "locationId": "room101",
+      "type": "Electrical"
+    },
+    {
+      "id": "ac1",
+      "name": "Air Conditioner",
+      "locationId": "room102",
+      "type": "Electrical"
+    },
+    {
+      "id": "serv1",
+      "name": "Main Server",
+      "locationId": "server_room",
+      "type": "IT"
+    }
+  ],
+  "issues": []
+}
