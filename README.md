@@ -123,3 +123,6 @@ The Digital Platform for Monitoring School Infrastructure aims to modernize how 
 By providing a centralized, transparent, and efficient system, the platform ensures better infrastructure management, 
 ultimately contributing to improved learning environment
 Open-source communities and developers whose tools and frameworks made this project possible
+Happy Coding! 🚀
+
+For questions or feedback, please reach out through mail or create an issue on GitHub.
