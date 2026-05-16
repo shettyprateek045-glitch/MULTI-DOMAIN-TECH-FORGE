@@ -3,11 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Digital Platform Monitoring Infrastructure of School and Facilities — manage attendance, exams, fees, and issue reports." />
+  <meta name="description" content="Digital Platform Monitoring Infrastructure of School and Facilities — manage attendance, exams, fees, and reports." />
+  
+  <!-- Preconnect to Font Origins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <title>DIGITAL INFRASTRUCTURE MONITORING SYSTEM</title>
-  <link rel="stylesheet" href="style1.css" fetchpriority="high" />
+  
+  <!-- Preload Critical Fonts -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+  
+  <!-- Preload Critical Images for LCP -->
+  <link rel="preload" as="image" href="campus_map.png" fetchpriority="high">
+  <link rel="preload" as="image" href="floorplan.png">
+  
+  <link rel="stylesheet" href="style1.css" />
+  
+  <!-- Resource Hints -->
+  <link rel="dns-prefetch" href="https://cdn.socket.io">
+  
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" defer></script>
+  <script src="script1.js" defer></script>
 </head>
 <body>
   <div class="bg-animated">
@@ -121,10 +137,10 @@
           <div class="dropdown-menu" id="dropdown-menu">
             <div class="menu-label">Quick Actions</div>
             <button class="menu-item" onclick="switchTab('report')">
-              <span class="menu-icon">📝</span> Issue Report
+              <span class="menu-icon">📝</span> Report
             </button>
             <button class="menu-item" onclick="switchTab('problems')">
-              <span class="menu-icon">⚠️</span> Report Problem
+              <span class="menu-icon">👨‍🔧</span> Maintenance Report
             </button>
             <div class="menu-divider" id="menu-divider-academics"></div>
             <div class="menu-label" id="menu-label-academics">Academics</div>
@@ -165,9 +181,11 @@
         <button class="tab-btn" data-tab="exams" onclick="switchTab('exams')">📋 Exams</button>
         <button class="tab-btn" data-tab="fees" onclick="switchTab('fees')">💰 Fees</button>
         <button class="tab-btn" data-tab="timetable" onclick="switchTab('timetable')">📅 Timetable</button>
-        <button class="tab-btn" data-tab="report" onclick="switchTab('report')">📝 Issue Report</button>
-        <button class="tab-btn" data-tab="problems" onclick="switchTab('problems')">⚠️ Report Problem</button>
-        <button class="tab-btn" data-tab="maintenance" onclick="switchTab('maintenance')" style="display:none;">👨‍🔧 Maintenance Tasks</button>
+        <button class="tab-btn" data-tab="marks-entry" onclick="switchTab('marks-entry')" style="display:none;">📝 Marks Entry</button>
+        <button class="tab-btn" data-tab="attendance-entry" onclick="switchTab('attendance-entry')" style="display:none;">✅ Attendance Entry</button>
+        <button class="tab-btn" data-tab="report" onclick="switchTab('report')">📝 Report</button>
+        <button class="tab-btn" data-tab="problems" onclick="switchTab('problems')">👨‍🔧 Maintenance Report</button>
+        <button class="tab-btn" data-tab="maintenance" onclick="switchTab('maintenance')" style="display:none;">🛠️ Maintenance Tasks</button>
         <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')" style="display:none;">📈 Admin Dashboard</button>
       </div>
 
@@ -210,7 +228,10 @@
 
         <!-- Recent Attendance Table -->
         <div class="attendance-table-card">
-          <h3>📅 Recent Attendance Log</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3>📅 Recent Attendance Log</h3>
+            <button class="export-btn" onclick="exportAttendance()">📥 Export Log</button>
+          </div>
           <table class="att-table">
             <thead>
               <tr>
@@ -286,20 +307,12 @@
           </ul>
         </div>
         <div class="panel-card">
-          <h3>📊 Past Results</h3>
-          <ul class="panel-list">
-            <li>
-              <span class="item-label">📐 Mathematics — Unit Test 2</span>
-              <span class="item-value"><span class="badge badge-success">85 / 100</span></span>
-            </li>
-            <li>
-              <span class="item-label">🔬 Physics — Quiz 4</span>
-              <span class="item-value"><span class="badge badge-success">78 / 100</span></span>
-            </li>
-            <li>
-              <span class="item-label">📖 English — Grammar Test</span>
-              <span class="item-value"><span class="badge badge-warning">62 / 100</span></span>
-            </li>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3>📊 Examination Results</h3>
+            <button class="export-btn" onclick="exportMarks()">📥 Export Results</button>
+          </div>
+          <ul class="panel-list" id="exam-results-list">
+             <li style="text-align:center; color: var(--text-muted); padding: 20px 0;">Loading results...</li>
           </ul>
         </div>
       </div>
@@ -370,7 +383,7 @@
         </div>
       </div>
 
-      <!-- ====== TAB: Issue Report ====== -->
+      <!-- ====== TAB: Report ====== -->
        <div class="tab-panel" id="panel-report">
         <!-- Faculty Stats Grid -->
         <div class="attendance-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
@@ -389,7 +402,7 @@
         </div>
 
         <div class="panel-card">
-          <h3>📝 Submit an Issue Report</h3>
+          <h3>📝 Submit a Report</h3>
           <form class="report-form" id="issue-report-form" onsubmit="submitReport(event, 'issue')">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
               <div class="form-group-mini">
@@ -410,15 +423,15 @@
                 <datalist id="location-list"></datalist>
               </div>
             </div>
-            <input type="text" id="report-subject" placeholder="Brief subject of the issue" required />
-            <textarea id="report-detail" placeholder="Describe the issue in detail..." required></textarea>
+            <input type="text" id="report-subject" placeholder="Brief subject of the report" required />
+            <textarea id="report-detail" placeholder="Describe in detail..." required></textarea>
             <button type="submit" class="submit-btn">🚀 Submit Report</button>
 
           </form>
         </div>
         <div class="panel-card" style="margin-top: 20px;">
           <h3>📋 My Reports & Verifications</h3>
-          <p class="analytics-desc">Track and verify the resolution of issues you've reported.</p>
+          <p class="analytics-desc">Track and verify the resolution of reports you've submitted.</p>
           <ul class="panel-list" id="user-reports-list" style="max-height: 300px; overflow-y: auto;">
              <li style="color: var(--text-muted); font-size: 0.85rem; padding: 10px 0;">No active reports to verify.</li>
           </ul>
@@ -456,7 +469,7 @@
         </div>
 
         <div class="panel-card">
-          <h3>⚠️ Report a Problem (Staff View)</h3>
+          <h3>👨‍🔧 Maintenance Report (Staff View)</h3>
           <form class="report-form" id="problem-report-form" onsubmit="submitNewIssue(event)">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
               <div class="form-group-mini">
@@ -507,9 +520,9 @@
         <div class="panel-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3>👨‍🔧 Maintenance Task Dashboard</h3>
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="display: flex; gap: 8px;">
+              <button class="export-btn" onclick="exportMaintenance()" style="padding: 6px 12px; font-size: 0.75rem;">📥 Export CSV</button>
               <button class="submit-btn danger" onclick="clearAllReports()" style="padding: 6px 12px; font-size: 0.75rem; background: var(--danger);">🗑️ Clear All</button>
-              <div id="maint-count-badge" class="badge badge-info">-- Active Tasks</div>
             </div>
           </div>
           <p class="analytics-desc">Track and manage school-wide infrastructure improvements.</p>
@@ -518,29 +531,120 @@
              <li style="text-align:center; color: var(--text-muted); padding: 24px 0;">
                <span style="font-size: 2rem;">📭</span><br>
                <span style="font-weight: 600;">No reports yet</span><br>
-                <span style="font-size: 0.85rem;">All reported issues from faculty and students will appear here.</span>
+                 <span style="font-size: 0.85rem;">All reports from faculty and students will appear here.</span>
              </li>
           </ul>
         </div>
       </div>
       
       <!-- ====== TAB: Analytics (Workflow Step 6) ====== -->
-      <div class="tab-panel" id="panel-analytics">
-        <div class="panel-card" style="margin-bottom: 20px;">
-          <h3>🗺️ Digital Twin Lite (Live Heatmap)</h3>
-          <p class="analytics-desc">Visual infrastructure health map. Pulse indicates active issues.</p>
-          <div class="map-container" style="position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #f0f0f0; border: 1px solid var(--border-glass);">
-            <canvas id="digital-twin-canvas" style="width: 100%; display: block; aspect-ratio: 16/9;"></canvas>
-            <div id="map-legend" style="position: absolute; bottom: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 8px; font-size: 0.7rem; border: 1px solid #ddd;">
-              <div style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:50%; background:#ff4757; display:inline-block;"></span> 3+ Issues</div>
-              <div style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:50%; background:#ffa502; display:inline-block;"></span> 1-2 Issues</div>
-              <div style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:50%; background:#2ed573; display:inline-block;"></span> Clear</div>
+  <div class="tab-panel" id="panel-analytics">
+    <div class="futuristic-dashboard">
+      <!-- Main Monitoring Map Section -->
+      <div class="dashboard-main-row">
+        <div class="map-section glass-card">
+          <div class="card-header">
+            <div class="status-indicator">
+              <span class="pulse-dot"></span>
+              <h3>🗺️ IOT SMART CAMPUS LIVE MAP</h3>
+            </div>
+            <span class="badge badge-info">AI ACTIVE</span>
+          </div>
+          <div class="map-viewport" style="background: url('campus_map.png') no-repeat center center; background-size: cover; border: 2px solid var(--primary-light);">
+            <canvas id="digital-twin-canvas" style="background: transparent;"></canvas>
+            <div class="map-overlay-labels">
+              <span class="map-label" style="top:20%; left:20%;">PLAYGROUND</span>
+              <span class="map-label" style="top:15%; left:65%;">BLOCK A (CLASSROOMS)</span>
+              <span class="map-label" style="top:45%; left:65%;">BLOCK B (LABS)</span>
+              <span class="map-label" style="top:75%; left:15%;">CAFETERIA</span>
+              <span class="map-label" style="top:50%; left:45%;">MAIN GATE</span>
             </div>
           </div>
         </div>
 
+        <div class="alerts-sidebar glass-card">
+          <div class="card-header">
+            <h3>🔔 AI MAINTENANCE ALERTS</h3>
+          </div>
+          <div class="alerts-scroll">
+            <div class="alert-item high">
+              <div class="alert-icon">💧</div>
+              <div class="alert-content">
+                <strong>Low Water Level</strong>
+                <span>Tank #02 - Main Wing</span>
+              </div>
+            </div>
+            <div class="alert-item warning">
+              <div class="alert-icon">⚡</div>
+              <div class="alert-content">
+                <strong>Electrical Fault</strong>
+                <span>Switchboard G-04</span>
+              </div>
+            </div>
+            <div class="alert-item info">
+              <div class="alert-icon">🏫</div>
+              <div class="alert-content">
+                <strong>Repair Pending</strong>
+                <span>Classroom 101 - Ceiling</span>
+              </div>
+            </div>
+            <div class="alert-item success">
+              <div class="alert-icon">🛜</div>
+              <div class="alert-content">
+                <strong>WiFi Optimal</strong>
+                <span>All building points active</span>
+              </div>
+            </div>
+          </div>
+          <div class="prediction-box">
+             <div class="prediction-label">AI PREDICTION</div>
+             <p>85% chance of HVAC failure in Block B within 48 hours.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics Row -->
+      <div class="stats-row">
+        <div class="mini-stat-card glass-card">
+          <span class="stat-label">HEALTH SCORE</span>
+          <div class="stat-main">
+            <span class="stat-value">94.8</span>
+            <span class="stat-trend positive">↑ 1.2%</span>
+          </div>
+          <div class="progress-bar"><div class="progress" style="width: 94.8%;"></div></div>
+        </div>
+        <div class="mini-stat-card glass-card">
+          <span class="stat-label">ACTIVE TASKS</span>
+          <div class="stat-main">
+            <span class="stat-value" id="stat-active-tasks">12</span>
+            <span class="stat-trend">STABLE</span>
+          </div>
+          <div class="progress-bar"><div class="progress" style="width: 40%; background: var(--warning);"></div></div>
+        </div>
+        <div class="mini-stat-card glass-card">
+          <span class="stat-label">ENERGY USAGE</span>
+          <div class="stat-main">
+            <span class="stat-value">4.2 kW/h</span>
+            <span class="stat-trend negative">↓ 4.5%</span>
+          </div>
+          <div class="progress-bar"><div class="progress" style="width: 65%; background: var(--info);"></div></div>
+        </div>
+        <div class="mini-stat-card glass-card">
+          <span class="stat-label">WATER USAGE</span>
+          <div class="stat-main">
+            <span class="stat-value">1.2k Gal</span>
+            <span class="stat-trend positive">↓ 0.8%</span>
+          </div>
+          <div class="progress-bar"><div class="progress" style="width: 30%; background: var(--primary);"></div></div>
+        </div>
+      </div>
+    </div>
+
         <div class="panel-card" style="background: linear-gradient(135deg, #1a0633, #4a148c); color: white;">
-          <h3 style="color: white;">📊 System Performance: Before vs. After</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="color: white; margin-bottom: 0;">📊 System Performance: Before vs. After</h3>
+            <button class="export-btn" onclick="exportAnalytics()" style="background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2);">📥 Export Summary</button>
+          </div>
           <p style="opacity: 0.8; font-size: 0.85rem; margin-bottom: 15px;">Real metrics measured during Step 11 validation testing.</p>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
             <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 10px;">
@@ -598,11 +702,11 @@
             <div class="quick-stats">
               <div class="q-stat">
                 <span class="q-val danger" id="stat-critical">0</span>
-                <span class="q-lbl">Critical Issues</span>
+                <span class="q-lbl">Critical Reports</span>
               </div>
               <div class="q-stat">
                 <span class="q-val warning" id="stat-active">0</span>
-                <span class="q-lbl">Active Issues</span>
+                <span class="q-lbl">Active Reports</span>
               </div>
               <div class="q-stat">
                 <span class="q-val success" id="stat-resolved">0</span>
@@ -623,10 +727,10 @@
         <!-- Issue Prediction & Testing Console -->
         <div class="prediction-grid">
           <div class="panel-card">
-            <h3>🤖 Smart Issue Classification</h3>
+            <h3>🤖 Smart Report Classification</h3>
             <p class="item-label">Our Natural Language Algorithm parses text to predict the severity category.</p>
             <div class="prediction-demo">
-               <textarea id="demo-issue-text" placeholder="Type a sample issue description (e.g., 'There is a massive water leak pooling near the server room!')"></textarea>
+               <textarea id="demo-issue-text" placeholder="Type a sample report description (e.g., 'There is a massive water leak pooling near the server room!')"></textarea>
                <button type="button" class="submit-btn" onclick="runPredictionDemo()">Analyze Severity</button>
                <div id="demo-prediction-result" class="prediction-result" style="display:none;">
                  <p>Predicted Severity:</p> <span id="pred-badge" class="badge"></span>
@@ -653,8 +757,167 @@
     <span id="toast-message">Action completed!</span>
   </div>
 
+  <!-- ====== TAB: Marks Entry (Faculty Only) ====== -->
+  <div class="tab-panel" id="panel-marks-entry">
+    <div class="panel-card">
+      <h3>📝 Student Marks Entry</h3>
+      <p class="analytics-desc">Enter marks for individual students based on examinations.</p>
+      <form class="report-form" id="marks-entry-form" onsubmit="submitMarks(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div class="form-group-mini" style="grid-column: span 2;">
+            <label style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-bottom: 8px; display: block;">Select Student Name</label>
+            <div class="custom-dropdown" id="dropdown-marks-student">
+              <div class="dropdown-header" onclick="toggleCustomDropdown('dropdown-marks-student')">
+                <input type="text" placeholder="Choose Student" readonly class="dropdown-selected" id="display-marks-student">
+                <input type="hidden" id="marks-student-name" required>
+                <span class="dropdown-arrow">▼</span>
+              </div>
+              <div class="dropdown-list-container">
+                <input type="text" class="dropdown-search" placeholder="Search student..." oninput="filterDropdown('dropdown-marks-student', this.value)">
+                <ul class="dropdown-list" id="list-marks-student">
+                  <!-- Populated by JS -->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="form-group-mini">
+            <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Select Subject</label>
+            <div class="custom-dropdown" id="dropdown-marks-subject">
+              <div class="dropdown-header" onclick="toggleCustomDropdown('dropdown-marks-subject')">
+                <input type="text" placeholder="Choose Subject" readonly class="dropdown-selected" id="display-marks-subject">
+                <input type="hidden" id="marks-subject" required>
+                <span class="dropdown-arrow">▼</span>
+              </div>
+              <div class="dropdown-list-container">
+                <input type="text" class="dropdown-search" placeholder="Search subject..." oninput="filterDropdown('dropdown-marks-subject', this.value)">
+                <ul class="dropdown-list" id="list-marks-subject">
+                  <li onclick="selectDropdownOption('dropdown-marks-subject', 'Mathematics', 'Mathematics')">Mathematics</li>
+                  <li onclick="selectDropdownOption('dropdown-marks-subject', 'Physics', 'Physics')">Physics</li>
+                  <li onclick="selectDropdownOption('dropdown-marks-subject', 'Chemistry', 'Chemistry')">Chemistry</li>
+                  <li onclick="selectDropdownOption('dropdown-marks-subject', 'English', 'English')">English</li>
+                  <li onclick="selectDropdownOption('dropdown-marks-subject', 'Computer Science', 'Computer Science')">Computer Science</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div class="form-group-mini" style="grid-column: span 2; margin-top: 5px;">
+            <label style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-bottom: 8px; display: block;">Exam / Assessment</label>
+            <div class="custom-dropdown" id="dropdown-marks-exam">
+              <div class="dropdown-header" onclick="toggleCustomDropdown('dropdown-marks-exam')">
+                <input type="text" placeholder="Choose Unit Test" readonly class="dropdown-selected" id="display-marks-exam">
+                <input type="hidden" id="marks-exam-type" required>
+                <span class="dropdown-arrow">▼</span>
+              </div>
+              <div class="dropdown-list-container">
+                <input type="text" class="dropdown-search" placeholder="Search test..." oninput="filterDropdown('dropdown-marks-exam', this.value)">
+                <ul class="dropdown-list" id="list-marks-exam">
+                  <li onclick="selectDropdownOption('dropdown-marks-exam', 'Unit Test 1', 'Unit Test 1')">Unit Test 1</li>
+                  <li onclick="selectDropdownOption('dropdown-marks-exam', 'Unit Test 2', 'Unit Test 2')">Unit Test 2</li>
+                  <li onclick="selectDropdownOption('dropdown-marks-exam', 'Unit Test 3', 'Unit Test 3')">Unit Test 3</li>
+                  <li onclick="selectDropdownOption('dropdown-marks-exam', 'Mid-Term', 'Mid-Term')">Mid-Term</li>
+                  <li onclick="selectDropdownOption('dropdown-marks-exam', 'Final', 'Final')">Final</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="form-group-mini">
+            <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Marks Obtained</label>
+            <input type="number" id="marks-value" min="0" max="100" placeholder="e.g., 85" required />
+          </div>
+        </div>
+        <button type="submit" class="submit-btn">💾 Save Marks</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====== TAB: Attendance Entry (Faculty Only) ====== -->
+  <div class="tab-panel" id="panel-attendance-entry">
+    <div class="panel-card">
+      <h3>✅ Student Attendance Entry</h3>
+      <p class="analytics-desc">Mark student presence for the daily log.</p>
+      <form class="report-form" id="attendance-entry-form" onsubmit="submitStudentAttendance(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div class="form-group-mini">
+            <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Date</label>
+            <input type="date" id="att-date" required />
+          </div>
+          <div class="form-group-mini">
+            <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Period / Time</label>
+            <select id="att-period" required>
+              <option value="09:00 AM - 10:00 AM">1st Period (09-10 AM)</option>
+              <option value="10:00 AM - 11:00 AM">2nd Period (10-11 AM)</option>
+              <option value="11:00 AM - 12:00 PM">3rd Period (11-12 AM)</option>
+              <option value="12:00 PM - 01:00 PM">Lunch Break (12-01 PM)</option>
+              <option value="01:00 PM - 02:00 PM">4th Period (01-02 PM)</option>
+              <option value="02:00 PM - 03:00 PM">5th Period (02-03 PM)</option>
+              <option value="03:00 PM - 04:00 PM">6th Period (03-04 PM)</option>
+            </select>
+          </div>
+          <div class="form-group-mini">
+            <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Subject</label>
+            <select id="att-subject" required>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Physics">Physics</option>
+              <option value="Chemistry">Chemistry</option>
+              <option value="English">English</option>
+              <option value="Computer Science">Computer Science</option>
+            </select>
+          </div>
+        </div>
+        <div class="attendance-table-card" style="margin-top: 10px; max-height: 400px; overflow-y: auto;">
+          <table class="att-table">
+            <thead>
+              <tr>
+                <th>Student Name</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="att-entry-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+        <button type="submit" class="submit-btn" style="margin-top: 15px;">💾 Submit Attendance</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Chatbot UI -->
+  <div class="chatbot-container" id="chatbot-container" style="display: none;">
+    <button class="chatbot-toggle" id="chatbot-toggle" onclick="toggleChat()">
+      <span class="chat-icon">💬</span>
+      <span class="chat-badge" id="chat-badge">1</span>
+    </button>
+    <div class="chatbot-window" id="chatbot-window">
+      <div class="chat-header">
+        <div class="chat-title">
+          <span class="bot-avatar">🤖</span>
+          <div>
+            <h4>DPMISF Assistant</h4>
+            <span class="online-status">Online</span>
+          </div>
+        </div>
+        <button class="chat-close" onclick="toggleChat()">×</button>
+      </div>
+      <div class="chat-body" id="chat-body">
+        <div class="chat-msg bot">
+          <p>Hello! I'm your DPMISF Assistant. How can I help you today? You can ask about <b>attendance</b>, <b>exams</b>, or <b>fees</b>.</p>
+        </div>
+      </div>
+      <form class="chat-footer" onsubmit="sendChatMessage(event)">
+        <input type="text" id="chat-input" placeholder="Type your message..." autocomplete="off" />
+        <button type="submit" class="chat-send">➤</button>
+      </form>
+    </div>
+  </div>
+
   <script src="/socket.io/socket.io.js" defer></script>
   <script src="script1.js" defer></script>
 
+
+
+  
 </body>
 </html>

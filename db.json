@@ -84,5 +84,34 @@
       "type": "IT"
     }
   ],
-  "issues": []
+  "issues": [
+    {
+      "id": "8c97369c-a642-40bd-ac5e-dd1398a28e17",
+      "title": "a",
+      "description": "xzx",
+      "category": "academic",
+      "locationId": "room101",
+      "reportedBy": "Staff Alok Sen",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Normal",
+      "createdAt": "2026-05-11T15:43:49.449Z",
+      "updatedAt": "2026-05-11T15:43:49.449Z"
+    },
+    {
+      "id": "d23eb18f-7bcd-4f22-84b8-075128a042c0",
+      "title": "df",
+      "description": "fd",
+      "category": "academic",
+      "locationId": "room101",
+      "reportedBy": "Staff Alok Sen",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Normal",
+      "createdAt": "2026-05-11T16:00:04.077Z",
+      "updatedAt": "2026-05-11T16:00:04.077Z"
+    }
+  ]
 }

@@ -8,6 +8,8 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const QRCode = require('qrcode');
 
+const compression = require('compression');
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -16,6 +18,7 @@ const DB_FILE = path.join(__dirname, 'db.json');
 const QR_DIR = path.join(__dirname, 'qrcodes');
 
 // Middleware
+app.use(compression()); // Enable Gzip compression
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.static(__dirname));
@@ -23,7 +26,7 @@ app.use('/qrcodes', express.static(QR_DIR));
 
 // Initial Database
 const getDB = () => {
-  if (!fs.existsSync(DB_FILE)) return { users: [], locations: [], assets: [], issues: [] };
+  if (!fs.existsSync(DB_FILE)) return { users: [], locations: [], assets: [], issues: [], marks: [], attendance: [] };
   return JSON.parse(fs.readFileSync(DB_FILE));
 };
 const saveDB = (data) => fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
@@ -65,10 +68,11 @@ app.post('/api/issues', (req, res) => {
     updatedAt: new Date().toISOString()
   };
 
+  if (!db.issues) db.issues = [];
   db.issues.push(newIssue);
   
   // Predictive Maintenance Check
-  const assetIssues = db.issues.filter(i => i.locationId === locationId && i.category === category).length;
+  const assetIssues = (db.issues || []).filter(i => i.locationId === locationId && i.category === category).length;
   if (assetIssues >= 3) {
     newIssue.predictiveAlert = `High Risk: ${category} issues occurred ${assetIssues} times here recently.`;
   }
@@ -108,6 +112,50 @@ app.get('/api/locations/:id/history', (req, res) => {
 // Basic Gets
 app.get('/api/issues', (req, res) => res.json(getDB().issues));
 app.get('/api/locations', (req, res) => res.json(getDB().locations));
+
+// 4. Clear All Issues
+app.delete('/api/issues', (req, res) => {
+  const db = getDB();
+  db.issues = [];
+  saveDB(db);
+  io.emit('allIssuesCleared');
+  res.json({ message: 'All issues cleared' });
+});
+
+// 5. Submit Marks
+app.post('/api/marks', (req, res) => {
+  const db = getDB();
+  if (!db.marks) db.marks = [];
+  const newMark = { ...req.body, id: uuidv4(), createdAt: new Date().toISOString() };
+  db.marks.push(newMark);
+  saveDB(db);
+  io.emit('newMarkAdded', newMark);
+  res.status(201).json(newMark);
+});
+
+// 6. Submit Attendance
+app.post('/api/attendance', (req, res) => {
+  const db = getDB();
+  if (!db.attendance) db.attendance = [];
+  const entries = req.body; // Expecting array of entries
+  db.attendance = [...(db.attendance || []), ...entries.map(e => ({ ...e, id: uuidv4(), createdAt: new Date().toISOString() }))];
+  saveDB(db);
+  io.emit('attendanceUpdated');
+  res.status(201).json({ message: 'Attendance recorded' });
+});
+
+// 7. Get Student Data
+app.get('/api/students/:username/marks', (req, res) => {
+  const db = getDB();
+  const marks = (db.marks || []).filter(m => m.student === req.params.username);
+  res.json(marks);
+});
+
+app.get('/api/students/:username/attendance', (req, res) => {
+  const db = getDB();
+  const attendance = (db.attendance || []).filter(a => a.student === req.params.username);
+  res.json(attendance);
+});
 
 // Real-time connections
 io.on('connection', (socket) => {

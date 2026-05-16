@@ -6,6 +6,7 @@
 // ---- State ----
 let currentRole = '';
 let isLoggedIn = false;
+let currentUsername = ''; // Tracks the currently logged-in user
 
 // ---- Demo Credentials ----
 const CREDENTIALS = {
@@ -14,29 +15,6 @@ const CREDENTIALS = {
   student: { username: 'student', password: 'student123' }
 };
 
-const API_BASE = 'http://localhost:9090/api';
-const socket = (typeof io !== 'undefined') ? io() : null;
-
-// --- Real-time Listeners ---
-if (socket) {
-  socket.on('newIssue', (issue) => {
-    showToast('🔔', `New issue reported: ${issue.title}`);
-    if (pages.dashboard.classList.contains('active')) {
-      loadMaintenanceReports();
-      renderDigitalTwin();
-      updateAnalyticsDashboard();
-      loadUserReports();
-      loadPredictiveAlerts();
-    }
-  });
-  
-  socket.on('issueUpdated', (issue) => {
-    if (pages.dashboard.classList.contains('active')) {
-      loadMaintenanceReports();
-      loadUserReports();
-    }
-  });
-}
 
 // ---- DOM References ----
 const pages = {
@@ -60,6 +38,64 @@ const dropdownMenu = document.getElementById('dropdown-menu');
 const toast = document.getElementById('toast');
 const toastIcon = document.getElementById('toast-icon');
 const toastMessage = document.getElementById('toast-message');
+
+const API_BASE = 'http://localhost:9090/api';
+const socket = (typeof io !== 'undefined') ? io() : null;
+
+// --- Utilities ---
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Debounced update functions for heavy UI tasks
+const debouncedUpdateDashboard = debounce(() => {
+  if (pages.dashboard && pages.dashboard.classList.contains('active')) {
+    loadMaintenanceReports();
+    renderDigitalTwin();
+    updateAnalyticsDashboard();
+    loadUserReports();
+    loadPredictiveAlerts();
+  }
+}, 300);
+
+// --- Real-time Listeners ---
+if (socket) {
+  socket.on('newIssue', (issue) => {
+    showToast('🔔', `New report: ${issue.title}`);
+    debouncedUpdateDashboard();
+  });
+  
+  socket.on('issueUpdated', (issue) => {
+    debouncedUpdateDashboard();
+  });
+
+  socket.on('allIssuesCleared', () => {
+    showToast('🗑️', 'Administrator cleared all maintenance reports.');
+    debouncedUpdateDashboard();
+  });
+
+  socket.on('newMarkAdded', (mark) => {
+    if (currentRole === 'student' && currentUsername === mark.student) {
+      showToast('🎓', `New marks posted for ${mark.subject}!`);
+      loadStudentMarks(mark.student);
+    }
+  });
+
+  socket.on('attendanceUpdated', () => {
+    if (currentRole === 'student') {
+      showToast('📊', 'Attendance records updated.');
+      loadStudentAttendance(currentUsername);
+    }
+  });
+}
 
 // ---- Page Navigation ----
 function showPage(pageKey) {
@@ -270,115 +306,131 @@ const AUTHORIZED_FACULTY = {
 
 // ---- Handle Login ----
 function handleLogin(e) {
-  e.preventDefault();
+  try {
+    e.preventDefault();
 
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
 
-  let isValid = false;
-  let finalUsername = username;
+    let isValid = false;
+    let finalUsername = username;
 
-  if (currentRole === 'student') {
-    const studentKeys = Object.keys(AUTHORIZED_STUDENTS);
-    const matchedKey = studentKeys.find(name => name.toLowerCase() === username.toLowerCase());
-    
-    if (matchedKey && AUTHORIZED_STUDENTS[matchedKey] === password) {
-      isValid = true;
-      finalUsername = matchedKey; // Use properly formatted name
+    if (currentRole === 'student') {
+      const studentKeys = Object.keys(AUTHORIZED_STUDENTS);
+      const matchedKey = studentKeys.find(name => name.toLowerCase() === username.toLowerCase());
+      
+      if (matchedKey && AUTHORIZED_STUDENTS[matchedKey] === password) {
+        isValid = true;
+        finalUsername = matchedKey; 
+      }
+    } else if (currentRole === 'faculty') {
+      const facultyKeys = Object.keys(AUTHORIZED_FACULTY);
+      const matchedKey = facultyKeys.find(name => name.toLowerCase() === username.toLowerCase());
+      
+      if (matchedKey && AUTHORIZED_FACULTY[matchedKey] === password) {
+        isValid = true;
+        finalUsername = matchedKey; 
+      }
+    } else {
+      if (username && password) {
+        isValid = true;
+      }
     }
-  } else if (currentRole === 'faculty') {
-    const facultyKeys = Object.keys(AUTHORIZED_FACULTY);
-    const matchedKey = facultyKeys.find(name => name.toLowerCase() === username.toLowerCase());
-    
-    if (matchedKey && AUTHORIZED_FACULTY[matchedKey] === password) {
-      isValid = true;
-      finalUsername = matchedKey; // Use properly formatted name
-    }
-  } else {
-    // For other roles, allow any username and password combination like before
-    if (username && password) {
-      isValid = true;
-    }
-  }
 
-  if (isValid) {
-    executeLogin(finalUsername);
-  } else {
-    loginError.classList.add('show');
-    // Shake the form
-    loginForm.style.animation = 'none';
-    void loginForm.offsetHeight;
-    loginForm.style.animation = 'shake 0.4s ease';
+    if (isValid) {
+      executeLogin(finalUsername);
+    } else {
+      loginError.classList.add('show');
+      loginForm.style.animation = 'none';
+      void loginForm.offsetHeight;
+      loginForm.style.animation = 'shake 0.4s ease';
+    }
+  } catch (err) {
+    console.error("Login Error:", err);
+    showToast('❌', 'Login logic error: ' + err.message);
   }
 }
 
 function executeLogin(username) {
-  isLoggedIn = true;
-  loginError.classList.remove('show');
+  try {
+    isLoggedIn = true;
+    currentUsername = username; // Store globally
+    loginError.classList.remove('show');
 
-  // Update dashboard with user info
-  let displayName = capitalize(username);
-  const navAvatar = document.getElementById('nav-avatar');
+    let displayName = (typeof capitalize === 'function') ? capitalize(username) : username;
+    const navAvatar = document.getElementById('nav-avatar');
 
-  if(currentRole === 'faculty') {
-    displayName = 'Staff ' + displayName;
-    if(navAvatar) navAvatar.textContent = '👨‍🏫';
-  } else if(currentRole === 'admin') {
-    displayName = 'Administrator';
-    if(navAvatar) navAvatar.textContent = '🏛️';
-  } else if(currentRole === 'student') {
-    if(navAvatar) navAvatar.textContent = '🎓';
-  } else {
-    if(navAvatar) navAvatar.textContent = '👤';
+    if(currentRole === 'faculty') {
+      displayName = 'Staff ' + displayName;
+      if(navAvatar) navAvatar.textContent = '👨‍🏫';
+    } else if(currentRole === 'admin') {
+      displayName = 'Administrator';
+      if(navAvatar) navAvatar.textContent = '🏛️';
+    } else if(currentRole === 'student') {
+      if(navAvatar) navAvatar.textContent = '🎓';
+    }
+    
+    if(navUsername) navUsername.textContent = displayName;
+    if(welcomeText) welcomeText.textContent = '👋 Welcome back, ' + displayName + '!';
+
+    if(typeof updateCurrentDate === 'function') updateCurrentDate();
+    
+    const allTabBtns = document.querySelectorAll('.tab-btn');
+    allTabBtns.forEach(btn => btn.style.display = 'none');
+
+    const academicEls = ['menu-divider-academics','menu-label-academics','menu-btn-exams','menu-btn-fees','menu-btn-timetable'];
+    
+    if (currentRole === 'admin') {
+      const adminTabs = ['maintenance', 'analytics'];
+      allTabBtns.forEach(btn => {
+        btn.style.display = adminTabs.includes(btn.getAttribute('data-tab')) ? 'inline-block' : 'none';
+      });
+      academicEls.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+      if(typeof loadMaintenanceReports === 'function') loadMaintenanceReports();
+      if(typeof renderDigitalTwin === 'function') renderDigitalTwin();
+      switchTab('analytics');
+      showToast('✅', 'Admin permissions loaded.');
+    } else if (currentRole === 'faculty') {
+      const marksBtn = document.querySelector('.tab-btn[data-tab="marks-entry"]');
+      const attBtn = document.querySelector('.tab-btn[data-tab="attendance-entry"]');
+      const repBtn = document.querySelector('.tab-btn[data-tab="report"]');
+      const probBtn = document.querySelector('.tab-btn[data-tab="problems"]');
+      if(marksBtn) marksBtn.style.display = 'inline-block';
+      if(attBtn) attBtn.style.display = 'inline-block';
+      if(repBtn) repBtn.style.display = 'inline-block';
+      if(probBtn) probBtn.style.display = 'none';
+      academicEls.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = ''; });
+      if(typeof populateFacultyStudentLists === 'function') populateFacultyStudentLists();
+      switchTab('marks-entry');
+      showToast('✅', 'Staff dashboard loaded.');
+    } else {
+      const attBtn = document.querySelector('.tab-btn[data-tab="attendance"]');
+      const examBtn = document.querySelector('.tab-btn[data-tab="exams"]');
+      const feesBtn = document.querySelector('.tab-btn[data-tab="fees"]');
+      const timeBtn = document.querySelector('.tab-btn[data-tab="timetable"]');
+      const repBtn = document.querySelector('.tab-btn[data-tab="report"]');
+      const maintBtn = document.querySelector('.tab-btn[data-tab="maintenance"]');
+      if(attBtn) attBtn.style.display = 'inline-block';
+      if(examBtn) examBtn.style.display = 'inline-block';
+      if(feesBtn) feesBtn.style.display = 'inline-block';
+      if(timeBtn) timeBtn.style.display = 'inline-block';
+      if(repBtn) repBtn.style.display = 'inline-block';
+      if(maintBtn) maintBtn.style.display = 'none';
+      academicEls.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = ''; });
+      const chatbot = document.getElementById('chatbot-container');
+      if(chatbot) chatbot.style.display = 'flex';
+      if(typeof loadStudentAttendance === 'function') loadStudentAttendance(username);
+      if(typeof loadMaintenanceReports === 'function') loadMaintenanceReports();
+      switchTab('attendance');
+      showToast('✅', 'Student dashboard loaded.');
+    }
+
+    showPage('dashboard');
+    if(typeof fetchLocations === 'function') fetchLocations();
+  } catch (err) {
+    console.error("Execute Login Error:", err);
+    showToast('❌', 'Execution error: ' + err.message);
   }
-  
-  navUsername.textContent = displayName;
-  welcomeText.textContent = '👋 Welcome back, ' + displayName + '!';
-
-  // Set current date
-  updateCurrentDate();
-  
-  // Handle tab visibility based on role
-  const allTabBtns = document.querySelectorAll('.tab-btn');
-  allTabBtns.forEach(btn => btn.style.display = 'none'); // Hide all first
-
-  // Academic dropdown items (show/hide per role)
-  const academicEls = ['menu-divider-academics','menu-label-academics','menu-btn-exams','menu-btn-fees','menu-btn-timetable'];
-  
-  if (currentRole === 'admin') {
-    allTabBtns.forEach(btn => btn.style.display = 'inline-block');
-    academicEls.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = ''; });
-    // Load faculty reports into maintenance tab
-    loadMaintenanceReports();
-    switchTab('analytics');
-    showToast('✅', 'Admin permissions loaded.');
-  } else if (currentRole === 'faculty') {
-    document.querySelector('.tab-btn[data-tab="report"]').style.display = 'inline-block';
-    document.querySelector('.tab-btn[data-tab="problems"]').style.display = 'inline-block';
-    // Hide academic items from dropdown for faculty
-    academicEls.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
-    switchTab('problems');
-    showToast('✅', 'Staff dashboard loaded.');
-  } else {
-    // Student
-    document.querySelector('.tab-btn[data-tab="attendance"]').style.display = 'inline-block';
-    document.querySelector('.tab-btn[data-tab="exams"]').style.display = 'inline-block';
-    document.querySelector('.tab-btn[data-tab="fees"]').style.display = 'inline-block';
-    document.querySelector('.tab-btn[data-tab="timetable"]').style.display = 'inline-block';
-    document.querySelector('.tab-btn[data-tab="report"]').style.display = 'inline-block';
-    document.querySelector('.tab-btn[data-tab="maintenance"]').style.display = 'inline-block';
-    academicEls.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = ''; });
-    loadStudentAttendance(username);
-    loadMaintenanceReports();
-    switchTab('attendance');
-    showToast('✅', 'Student dashboard loaded.');
-  }
-
-  showPage('dashboard');
-  
-  // System Engineer Update: Fetch metadata
-  fetchLocations();
-  loadMaintenanceReports();
 }
 
 async function fetchLocations() {
@@ -391,43 +443,40 @@ async function fetchLocations() {
     { id: 'playground', name: 'Playground' }
   ];
 
+  // Try to load from cache first for instant UI
+  const cached = localStorage.getItem('cached_locations');
+  if (cached) {
+    renderLocationDatalist(JSON.parse(cached));
+  }
+
   try {
     const res = await fetch(`${API_BASE}/locations`);
-    let locations;
     if (res.ok) {
-      locations = await res.json();
-      console.log('✅ Locations loaded from server:', locations.length);
-    } else {
-      console.warn('⚠️ Server returned error, using defaults.');
-      locations = defaultLocations;
-    }
-    
-    const datalist = document.getElementById('location-list');
-    if (datalist) {
-      datalist.innerHTML = '';
-      locations.forEach(loc => {
-        const opt = document.createElement('option');
-        opt.value = loc.id;
-        opt.textContent = loc.name;
-        datalist.appendChild(opt);
-      });
+      const locations = await res.json();
+      localStorage.setItem('cached_locations', JSON.stringify(locations));
+      renderLocationDatalist(locations);
+    } else if (!cached) {
+      renderLocationDatalist(defaultLocations);
     }
   } catch (err) {
-    console.error('❌ Failed to fetch locations, using defaults:', err);
-    // Use defaults silently so user doesn't see error if offline
-    const datalist = document.getElementById('location-list');
-    if (datalist) {
-      datalist.innerHTML = '';
-      defaultLocations.forEach(loc => {
-        const opt = document.createElement('option');
-        opt.value = loc.id;
-        opt.textContent = loc.name;
-        datalist.appendChild(opt);
-      });
-    }
-    // Optionally show a more helpful toast or none at all if it works
-    // showToast('ℹ️', 'Using offline location data.');
+    if (!cached) renderLocationDatalist(defaultLocations);
   }
+}
+
+function renderLocationDatalist(locations) {
+  const datalist = document.getElementById('location-list');
+  if (!datalist) return;
+  
+  const fragment = document.createDocumentFragment();
+  locations.forEach(loc => {
+    const opt = document.createElement('option');
+    opt.value = loc.id;
+    opt.textContent = loc.name;
+    fragment.appendChild(opt);
+  });
+  
+  datalist.innerHTML = '';
+  datalist.appendChild(fragment);
 }
 
 // ---- Per-Student Attendance Data ----
@@ -505,39 +554,168 @@ const ATT_LOGS = {
   ]
 };
 
-function loadStudentAttendance(name) {
-  const data = STUDENT_ATTENDANCE[name] || { pct: 85, present: 170, absent: 30, trend: '↑ 0.5%' };
+async function loadStudentAttendance(name) {
+  try {
+    const res = await fetch(`${API_BASE}/students/${name}/attendance`);
+    let serverLogs = res.ok ? await res.json() : [];
+    
+    // Merge with local offline data
+    const offlineAttendance = JSON.parse(localStorage.getItem('offlineAttendance') || '[]');
+    const studentOffline = offlineAttendance.filter(a => a.student === name);
+    
+    // Combine logs
+    const combinedLogs = [...serverLogs, ...studentOffline];
 
-  // Update stat cards
-  document.getElementById('att-overall-pct').textContent   = data.pct + '%';
-  document.getElementById('att-present-val').textContent   = data.present;
-  document.getElementById('att-absent-val').textContent    = data.absent;
-  document.getElementById('att-progress-fill').style.width = data.pct + '%';
-  document.getElementById('att-progress-label').textContent = data.pct + ' / 100';
+    // Merge with static data for demo if empty
+    const data = STUDENT_ATTENDANCE[name] || { pct: 85, present: 170, absent: 30, trend: '↑ 0.5%' };
+    
+    // Calculate new percentage if we have logs
+    if (combinedLogs.length > 0) {
+      const total = combinedLogs.length;
+      const present = combinedLogs.filter(l => l.status === 'present').length;
+      const pct = Math.round((present / total) * 100);
+      data.pct = pct;
+      data.present = present;
+      data.absent = total - present;
+    }
 
-  // Trend badge
-  const trendBadge = document.getElementById('att-trend-badge');
-  const isUp = data.trend.startsWith('↑');
-  trendBadge.textContent = data.trend;
-  trendBadge.className   = 'stat-badge ' + (isUp ? 'up' : 'down');
+    // Update stat cards
+    const pctEl = document.getElementById('att-overall-pct');
+    const presentEl = document.getElementById('att-present-val');
+    const absentEl = document.getElementById('att-absent-val');
+    const fillEl = document.getElementById('att-progress-fill');
+    const labelEl = document.getElementById('att-progress-label');
 
-  // Pick log set
-  let logSet;
-  if      (data.pct >= 90) logSet = ATT_LOGS.high;
-  else if (data.pct >= 80) logSet = ATT_LOGS.good;
-  else if (data.pct >= 70) logSet = ATT_LOGS.avg;
-  else                     logSet = ATT_LOGS.low;
+    if(pctEl) pctEl.textContent = data.pct + '%';
+    if(presentEl) presentEl.textContent = data.present;
+    if(absentEl) absentEl.textContent = data.absent;
+    if(fillEl) fillEl.style.width = data.pct + '%';
+    if(labelEl) labelEl.textContent = data.pct + ' / 100';
 
-  // Populate table body
-  const tbody = document.getElementById('att-log-body');
-  tbody.innerHTML = logSet.map(row => `
-    <tr>
-      <td>${row.date}</td>
-      <td>${row.subject}</td>
-      <td><span class="status-dot ${row.status}">${row.status.charAt(0).toUpperCase() + row.status.slice(1)}</span></td>
-      <td>${row.time}</td>
-    </tr>
-  `).join('');
+    // Trend badge
+    const trendBadge = document.getElementById('att-trend-badge');
+    if (trendBadge) {
+      const isUp = data.trend.startsWith('↑');
+      trendBadge.textContent = data.trend;
+      trendBadge.className   = 'stat-badge ' + (isUp ? 'up' : 'down');
+    }
+
+    // Populate table body
+    const tbody = document.getElementById('att-log-body');
+    if (tbody) {
+      // Show latest first
+      const sortedLogs = combinedLogs.sort((a, b) => {
+        const dateB = new Date(b.date || b.createdAt);
+        const dateA = new Date(a.date || a.createdAt);
+        return dateB - dateA;
+      });
+      const demoLogs = (data.pct >= 90 ? ATT_LOGS.high : data.pct >= 80 ? ATT_LOGS.good : data.pct >= 70 ? ATT_LOGS.avg : ATT_LOGS.low);
+      
+      // Combine and show latest 10
+      const allLogs = [...sortedLogs, ...demoLogs].slice(0, 10);
+      
+      const fragment = document.createDocumentFragment();
+      allLogs.forEach(row => {
+        const isNew = row.createdAt && (new Date() - new Date(row.createdAt) < 60000);
+        const tr = document.createElement('tr');
+        if (isNew) {
+          tr.style.cssText = 'background: rgba(99, 102, 241, 0.05); animation: pulse-light 2s infinite;';
+        }
+        
+        const badge = isNew ? '<span class="badge badge-info" style="font-size:0.6rem; margin-left:8px; animation: bounce 1s infinite;">NEW</span>' : '';
+        const statusText = row.status.charAt(0).toUpperCase() + row.status.slice(1);
+        
+        tr.innerHTML = `
+          <td>${new Date(row.date || row.createdAt || Date.now()).toLocaleDateString()}</td>
+          <td>${row.subject}${badge}</td>
+          <td><span class="status-dot ${row.status}">${statusText}</span></td>
+          <td>${row.time || 'Recorded'}</td>
+        `;
+        fragment.appendChild(tr);
+      });
+      
+      tbody.innerHTML = '';
+      tbody.appendChild(fragment);
+    }
+    
+    // Also load marks
+    loadStudentMarks(name);
+  } catch (err) {
+    console.error('Load attendance error:', err);
+    // Even on error, try to load offline marks
+    loadStudentMarks(name);
+  }
+}
+
+async function loadStudentMarks(name) {
+  const marksList = document.getElementById('exam-results-list');
+  if (!marksList) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/students/${name}/marks`);
+    let marks = res.ok ? await res.json() : [];
+    
+    // Merge with local offline data
+    const offlineMarks = JSON.parse(localStorage.getItem('offlineMarks') || '[]');
+    const studentOffline = offlineMarks.filter(m => m.student === name);
+    
+    // Combine and sort
+    const allMarks = [...marks, ...studentOffline].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    if (allMarks.length === 0) {
+       marksList.innerHTML = '<li style="text-align:center; color: var(--text-muted); padding: 20px 0;">No results posted yet.</li>';
+       return;
+    }
+
+    // Clear and populate
+    const fragment = document.createDocumentFragment();
+    allMarks.forEach(m => {
+      const li = document.createElement('li');
+      li.className = 'panel-list-item'; 
+      li.style.cssText = 'display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.05);';
+      
+      li.innerHTML = `
+        <div style="display:flex; flex-direction:column;">
+          <span style="font-weight:700; color:var(--primary);">${m.subject}</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">${m.exam}</span>
+        </div>
+        <div>
+          <span class="badge badge-success" style="font-size:0.9rem;">${m.value} / 100</span>
+        </div>
+      `;
+      fragment.appendChild(li);
+    });
+    marksList.innerHTML = '';
+    marksList.appendChild(fragment);
+  } catch (err) {
+    console.error('Load marks error:', err);
+    // Try to load just offline if fetch failed
+    const offlineMarks = JSON.parse(localStorage.getItem('offlineMarks') || '[]');
+    const studentOffline = offlineMarks.filter(m => m.student === name);
+    if(studentOffline.length > 0) {
+       marksList.innerHTML = '';
+       studentOffline.forEach(m => {
+         const li = document.createElement('li');
+         li.className = 'panel-list-item';
+         li.style.display = 'flex';
+         li.style.justifyContent = 'space-between';
+         li.style.padding = '12px 0';
+         li.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
+         li.innerHTML = `
+           <div style="display:flex; flex-direction:column;">
+             <span style="font-weight:700; color:var(--primary);">${m.subject}</span>
+             <span style="font-size:0.75rem; color:var(--text-muted);">${m.exam}</span>
+           </div>
+           <div>
+             <span class="badge badge-success" style="font-size:0.9rem;">${m.value} / 100</span>
+           </div>
+         `;
+         marksList.appendChild(li);
+       });
+    } else {
+       marksList.innerHTML = '<li style="text-align:center; color: var(--text-muted); padding: 20px 0;">No results posted yet.</li>';
+    }
+  }
 }
 
 // ---- Handle Logout ----
@@ -545,9 +723,16 @@ function handleLogout() {
   closeMenu();
   isLoggedIn = false;
   currentRole = '';
+  currentUsername = '';
   usernameInput.value = '';
   passwordInput.value = '';
   loginError.classList.remove('show');
+  
+  // Hide Chatbot on logout
+  const chatbot = document.getElementById('chatbot-container');
+  if(chatbot) chatbot.style.display = 'none';
+  if(document.getElementById('chatbot-window')) document.getElementById('chatbot-window').classList.remove('active');
+
   showPage('role');
   showToast('🚪', 'You have been logged out.');
 }
@@ -650,7 +835,7 @@ async function submitReport(e, type) {
       }
     } catch (err) {
       console.error('Submission error:', err);
-      showToast('✅', 'Issue report submitted successfully!');
+      showToast('✅', 'Report submitted successfully!');
       
       // Local fallback for demo if server is down
       const offlineData = JSON.parse(localStorage.getItem('offlineIssues') || '[]');
@@ -670,14 +855,307 @@ async function submitReport(e, type) {
   }
 }
 
+/* ============================================
+   CUSTOM SEARCHABLE DROPDOWN LOGIC
+   ============================================ */
+function toggleCustomDropdown(id) {
+  const dropdown = document.getElementById(id);
+  if (!dropdown) return;
+  const isOpen = dropdown.classList.contains('open');
+  
+  // Close all other dropdowns first
+  document.querySelectorAll('.custom-dropdown').forEach(d => {
+    if (d.id !== id) d.classList.remove('open');
+  });
+  
+  dropdown.classList.toggle('open');
+  
+  if (dropdown.classList.contains('open')) {
+    const searchInput = dropdown.querySelector('.dropdown-search');
+    if (searchInput) {
+      searchInput.value = '';
+      filterDropdown(id, '');
+      setTimeout(() => searchInput.focus(), 50);
+    }
+  }
+}
+
+function filterDropdown(id, query) {
+  const dropdown = document.getElementById(id);
+  if (!dropdown) return;
+  const items = dropdown.querySelectorAll('.dropdown-list li:not(.no-result)');
+  const list = dropdown.querySelector('.dropdown-list');
+  let hasVisible = false;
+  
+  query = query.toLowerCase().trim();
+  items.forEach(item => {
+    const text = item.textContent.toLowerCase();
+    if (text.includes(query)) {
+      item.style.display = 'flex';
+      hasVisible = true;
+    } else {
+      item.style.display = 'none';
+    }
+  });
+  
+  // Handle no results
+  let noResult = list.querySelector('.no-result');
+  if (!hasVisible && query !== '') {
+    if (!noResult) {
+      noResult = document.createElement('li');
+      noResult.className = 'no-result';
+      noResult.textContent = 'No matching options found';
+      list.appendChild(noResult);
+    }
+  } else if (noResult) {
+    noResult.remove();
+  }
+}
+
+function selectDropdownOption(dropdownId, value, display) {
+  const dropdown = document.getElementById(dropdownId);
+  if (!dropdown) return;
+  const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+  const displayInput = dropdown.querySelector('.dropdown-selected');
+  
+  hiddenInput.value = value;
+  displayInput.value = display;
+  
+  // Mark as selected in list
+  dropdown.querySelectorAll('.dropdown-list li').forEach(li => li.classList.remove('selected'));
+  const items = Array.from(dropdown.querySelectorAll('.dropdown-list li'));
+  const selectedLi = items.find(li => li.textContent.trim() === display);
+  if (selectedLi) selectedLi.classList.add('selected');
+  
+  dropdown.classList.remove('open');
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.custom-dropdown')) {
+    document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
+  }
+});
+
+/* ============================================
+   FACULTY LOGIC: Marks & Attendance
+   ============================================ */
+function populateFacultyStudentLists() {
+  const studentList = document.getElementById('list-marks-student');
+  const attEntryBody = document.getElementById('att-entry-body');
+  const students = Object.keys(AUTHORIZED_STUDENTS);
+  
+  // Clear any previous selections in custom dropdowns
+  document.querySelectorAll('.dropdown-selected').forEach(input => input.value = '');
+  document.querySelectorAll('.custom-dropdown input[type="hidden"]').forEach(input => input.value = '');
+  document.querySelectorAll('.dropdown-list li').forEach(li => li.classList.remove('selected'));
+
+  if(studentList) {
+    studentList.innerHTML = '';
+    students.forEach(name => {
+      const li = document.createElement('li');
+      li.textContent = name;
+      li.onclick = () => selectDropdownOption('dropdown-marks-student', name, name);
+      studentList.appendChild(li);
+    });
+  }
+  
+  if(attEntryBody) {
+    attEntryBody.innerHTML = students.map(name => `
+      <tr>
+        <td>${name}</td>
+        <td>
+          <select class="att-status-select" data-student="${name}">
+            <option value="present">Present</option>
+            <option value="absent">Absent</option>
+            <option value="late">Late</option>
+          </select>
+        </td>
+      </tr>
+    `).join('');
+  }
+  
+  // Set default date to today
+  const dateInput = document.getElementById('att-date');
+  if(dateInput) dateInput.valueAsDate = new Date();
+}
+
+async function submitMarks(e) {
+  e.preventDefault();
+  console.log('submitMarks triggered');
+  const student = document.getElementById('marks-student-name').value;
+  const subject = document.getElementById('marks-subject').value;
+  const exam = document.getElementById('marks-exam-type').value;
+  const val = document.getElementById('marks-value').value;
+  
+  console.log('Marks data:', { student, subject, exam, val });
+
+  if(!student || !subject || !exam || !val) {
+    showToast('⚠️', 'Please select student, subject, exam, and enter marks.');
+    return;
+  }
+
+  const marksPayload = { student, subject, exam, value: val, createdAt: new Date().toISOString() };
+
+  try {
+    showToast('⏳', 'Saving marks...');
+    const res = await fetch(`${API_BASE}/marks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(marksPayload)
+    });
+    
+    if (res.ok) {
+      console.log('Marks saved to server');
+      showToast('✅', `Marks saved for ${student} (${subject})`);
+      document.getElementById('marks-entry-form').reset();
+      document.querySelectorAll('#marks-entry-form .dropdown-selected').forEach(input => input.value = '');
+      document.querySelectorAll('#marks-entry-form input[type="hidden"]').forEach(input => input.value = '');
+    } else {
+      throw new Error('Server error');
+    }
+  } catch (err) {
+    console.warn('Marks save server failed, using local storage:', err);
+    
+    // Save to localStorage
+    const offlineMarks = JSON.parse(localStorage.getItem('offlineMarks') || '[]');
+    offlineMarks.push(marksPayload);
+    localStorage.setItem('offlineMarks', JSON.stringify(offlineMarks));
+    
+    showToast('✅', `Marks saved locally for ${student} (Offline)`);
+    
+    document.getElementById('marks-entry-form').reset();
+    document.querySelectorAll('#marks-entry-form .dropdown-selected').forEach(input => input.value = '');
+    document.querySelectorAll('#marks-entry-form input[type="hidden"]').forEach(input => input.value = '');
+  }
+}
+
+async function submitStudentAttendance(e) {
+  e.preventDefault();
+  console.log('submitStudentAttendance triggered');
+  const date = document.getElementById('att-date').value;
+  const subject = document.getElementById('att-subject').value;
+  const period = document.getElementById('att-period').value;
+  
+  if(!date || !subject || !period) {
+    showToast('⚠️', 'Please select date, subject, and period.');
+    return;
+  }
+
+  const rows = document.querySelectorAll('#att-entry-body tr');
+  const attendanceEntries = [];
+  
+  rows.forEach(row => {
+    const name = row.querySelector('td').textContent;
+    const select = row.querySelector('.att-status-select');
+    if (select) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      attendanceEntries.push({ 
+        student: name, 
+        date, 
+        subject, 
+        status: select.value, 
+        time: period,
+        createdAt: new Date().toISOString() 
+      });
+    }
+  });
+
+  if (attendanceEntries.length === 0) {
+    showToast('⚠️', 'No student attendance records found.');
+    return;
+  }
+
+  try {
+    showToast('⏳', 'Saving attendance...');
+    const res = await fetch(`${API_BASE}/attendance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(attendanceEntries)
+    });
+    
+    if (res.ok) {
+      showToast('✅', `Daily attendance for ${subject} on ${date} saved.`);
+      document.getElementById('attendance-entry-form').reset();
+      populateFacultyStudentLists(); 
+    } else {
+      throw new Error('Server error');
+    }
+  } catch (err) {
+    console.warn('Attendance save server failed, using local storage:', err);
+    
+    // Save to localStorage
+    const offlineAtt = JSON.parse(localStorage.getItem('offlineAttendance') || '[]');
+    attendanceEntries.forEach(entry => offlineAtt.push(entry));
+    localStorage.setItem('offlineAttendance', JSON.stringify(offlineAtt));
+    
+    showToast('✅', `Attendance saved locally (Offline)`);
+    
+    document.getElementById('attendance-entry-form').reset();
+    populateFacultyStudentLists(); 
+  }
+}
+
+/* ============================================
+   CHATBOT LOGIC
+   ============================================ */
+function toggleChat() {
+  const win = document.getElementById('chatbot-window');
+  win.classList.toggle('active');
+  if(win.classList.contains('active')) {
+    document.getElementById('chat-badge').style.display = 'none';
+    document.getElementById('chat-input').focus();
+  }
+}
+
+function sendChatMessage(e) {
+  e.preventDefault();
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if(!msg) return;
+  
+  appendMessage('user', msg);
+  input.value = '';
+  
+  // Simulated Bot Response
+  setTimeout(() => {
+    let response = "I'm not sure how to help with that. Try asking about 'attendance', 'exams', or 'fees'.";
+    const lower = msg.toLowerCase();
+    
+    if(lower.includes('attendance')) {
+      response = "You can view your daily attendance logs in the **Attendance** tab. The system updates your percentage automatically. Currently, most students maintain an 85% average.";
+    } else if(lower.includes('exam') || lower.includes('result')) {
+      response = "<b>Upcoming Exams:</b><br>• Unit Test 2: April 10th<br>• Mid-Term: May 15th<br><br>Your past results are available in the **Exams** tab under 'Examination Results'.";
+    } else if(lower.includes('fee') || lower.includes('pay') || lower.includes('money')) {
+      response = "<b>Fee Status Summary:</b><br>• Tuition: Paid (₹45,000)<br>• Transport: <span style='color:var(--danger)'>Due (₹8,500)</span><br>• Lab: Paid (₹3,000)<br>Check the **Fees** tab for payment links.";
+    } else if(lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
+      response = "Hello! I'm the Smart Campus AI. I can help you find your **exam dates**, **fee status**, or **attendance records**. What's on your mind?";
+    } else if(lower.includes('report') || lower.includes('problem')) {
+      response = "Need a fix? Use the **Report** tab to notify maintenance. Our AI will automatically prioritize your request based on the description.";
+    } else if(lower.includes('thank')) {
+      response = "You're welcome! Let me know if you need anything else.";
+    }
+    
+    appendMessage('bot', response);
+  }, 800);
+}
+
+function appendMessage(role, text) {
+  const body = document.getElementById('chat-body');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}`;
+  div.innerHTML = `<p>${text}</p>`;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+
 // --- QR Code Scanning Removed ---
 
 // --- Offline Capability (Step 10) ---
 async function syncOfflineIssues() {
   const offlineData = JSON.parse(localStorage.getItem('offlineIssues') || '[]');
   if (offlineData.length === 0) return;
-  
-  // showToast('📶', `Online! Syncing ${offlineData.length} reports...`);
   
   for (const issue of offlineData) {
     try {
@@ -690,20 +1168,61 @@ async function syncOfflineIssues() {
   }
   
   localStorage.removeItem('offlineIssues');
-  // showToast('✅', 'Offline reports synced successfully!');
   loadMaintenanceReports();
 }
 
-window.addEventListener('online', syncOfflineIssues);
+async function syncOfflineMarks() {
+  const offlineMarks = JSON.parse(localStorage.getItem('offlineMarks') || '[]');
+  if (offlineMarks.length === 0) return;
+  
+  for (const mark of offlineMarks) {
+    try {
+      await fetch(`${API_BASE}/marks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mark)
+      });
+    } catch (e) { break; }
+  }
+  
+  localStorage.removeItem('offlineMarks');
+}
+
+async function syncOfflineAttendance() {
+  const offlineAtt = JSON.parse(localStorage.getItem('offlineAttendance') || '[]');
+  if (offlineAtt.length === 0) return;
+  
+  // Group by subject/date to avoid multiple requests if possible, but keep it simple
+  for (const entry of offlineAtt) {
+    try {
+      await fetch(`${API_BASE}/attendance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([entry]) // Server expects array
+      });
+    } catch (e) { break; }
+  }
+  
+  localStorage.removeItem('offlineAttendance');
+}
+
+window.addEventListener('online', () => {
+  syncOfflineIssues();
+  syncOfflineMarks();
+  syncOfflineAttendance();
+});
 
 async function submitNewIssue(e) {
   e.preventDefault();
+  console.log('submitNewIssue triggered');
   
   const problemType = document.getElementById('problem-type').value;
   const locationId = document.getElementById('problem-location').value;
   const description = document.getElementById('problem-description').value;
   const imageFile = document.getElementById('problem-image').files[0];
   
+  console.log('Issue data:', { problemType, locationId });
+
   if (!problemType || !locationId || !description) {
     showToast('⚠️', 'Please fill in all required fields.');
     return;
@@ -720,7 +1239,7 @@ async function submitNewIssue(e) {
     imageData = await toBase64(imageFile);
   } else if (problemImageCaptured) {
     const canvas = document.getElementById('problem-canvas');
-    imageData = canvas.toDataURL('image/jpeg');
+    if (canvas) imageData = canvas.toDataURL('image/jpeg');
   }
 
   const issuePayload = {
@@ -728,11 +1247,13 @@ async function submitNewIssue(e) {
     description: description,
     category: problemType,
     locationId: locationId,
-    reportedBy: navUsername.textContent || 'Faculty',
-    image: imageData
+    reportedBy: (navUsername ? navUsername.textContent : 'User') || 'Faculty',
+    image: imageData,
+    severity: priorityResult.level
   };
 
   try {
+    console.log('Sending issue to server...');
     const res = await fetch(`${API_BASE}/issues`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -740,11 +1261,16 @@ async function submitNewIssue(e) {
     });
     
     if (res.ok) {
+      console.log('Issue saved to server');
       showToast('✅', `Issue stored! Priority assigned: ${priorityResult.level}`);
-      // ... (reset logic)
+      document.getElementById('problem-report-form').reset();
       loadMaintenanceReports();
+    } else {
+      console.error('Server error saving issue:', res.status);
+      throw new Error('Server error');
     }
   } catch (err) {
+    console.error('Issue submission error, falling back to local:', err);
     // Offline implementation
     const offlineData = JSON.parse(localStorage.getItem('offlineIssues') || '[]');
     const localIssue = {
@@ -756,7 +1282,7 @@ async function submitNewIssue(e) {
     };
     offlineData.push(localIssue);
     localStorage.setItem('offlineIssues', JSON.stringify(offlineData));
-    showToast('✅', 'Issue submitted successfully!');
+    showToast('✅', 'Issue submitted successfully (Offline)!');
     
     document.getElementById('problem-report-form').reset();
     loadMaintenanceReports();
@@ -943,7 +1469,12 @@ document.addEventListener('keydown', function (e) {
 // ---- Initialize ----
 (function init() {
   updateCurrentDate();
-  fetchLocations();
+  // Defer non-critical network calls to improve TBT/LCP
+  if (window.requestIdleCallback) {
+    requestIdleCallback(() => fetchLocations());
+  } else {
+    setTimeout(fetchLocations, 1);
+  }
 })();
 
 
@@ -1034,26 +1565,32 @@ function updateAnalyticsDashboard() {
 }
 
 // --- Digital Twin Rendering Engine ---
+const floorplanImage = new Image();
+floorplanImage.src = 'floorplan.png';
+let isFloorplanLoaded = false;
+floorplanImage.onload = () => { isFloorplanLoaded = true; };
+
 async function renderDigitalTwin() {
   const canvas = document.getElementById('digital-twin-canvas');
-  if (!canvas) return;
+  if (!canvas || !isFloorplanLoaded) return;
   const ctx = canvas.getContext('2d');
   
-  // Set dimensions
-  canvas.width = 800;
-  canvas.height = 500;
+  // Set dimensions once or on resize, but here kept simple
+  if (canvas.width !== 800) canvas.width = 800;
+  if (canvas.height !== 500) canvas.height = 500;
   
-  const img = new Image();
-  img.src = 'floorplan.png';
-  img.onload = async () => {
-    // Draw Floorplan
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    
-    // Fetch Data
+  // Draw Floorplan from cache
+  ctx.drawImage(floorplanImage, 0, 0, canvas.width, canvas.height);
+  
+  try {
+    // Fetch Data (using Promise.all for speed)
     const [locRes, issueRes] = await Promise.all([
       fetch(`${API_BASE}/locations`),
       fetch(`${API_BASE}/issues`)
     ]);
+    
+    if (!locRes.ok || !issueRes.ok) return;
+    
     const locations = await locRes.json();
     const issues = await issueRes.json();
     const activeIssues = issues.filter(i => i.status !== 'Completed' && i.status !== 'Verified');
@@ -1076,7 +1613,7 @@ async function renderDigitalTwin() {
       ctx.stroke();
       ctx.globalAlpha = 1.0;
 
-      // Pulse for Critical
+      // Pulse for Critical (simplified animation)
       if (count >= 3) {
         ctx.beginPath();
         ctx.arc(loc.x, loc.y, 20 + Math.sin(Date.now() / 200) * 5, 0, Math.PI * 2);
@@ -1091,7 +1628,9 @@ async function renderDigitalTwin() {
       ctx.textAlign = 'center';
       ctx.fillText(loc.name, loc.x, loc.y + 25);
     });
-  };
+  } catch (err) {
+    console.warn("Digital Twin update failed:", err);
+  }
 }
 
 // Hook into existing switchTab to trigger analytics/maintenance update
@@ -1126,14 +1665,8 @@ async function loadMaintenanceReports() {
       console.warn('⚠️ Server offline, loading local reports only.');
     }
     
-    // Merge with offline/unsynced issues
     const offlineIssues = JSON.parse(localStorage.getItem('offlineIssues') || '[]');
-    // Filter out offline issues that might already be on the server (by some unique prop if we had one, but here we just merge)
-    // For simplicity, we'll just prepend offline issues to the list
     const allIssues = [...offlineIssues, ...issues];
-
-    // Clear existing list
-    maintList.innerHTML = '';
 
     if (allIssues.length === 0) {
       maintList.innerHTML = `<li style="text-align:center; color: var(--text-muted); padding: 24px 0;">
@@ -1144,7 +1677,6 @@ async function loadMaintenanceReports() {
       return;
     }
 
-    // Fetch locations (with fallback)
     let locations = [];
     try {
       const locRes = await fetch(`${API_BASE}/locations`);
@@ -1161,52 +1693,34 @@ async function loadMaintenanceReports() {
       ];
     }
 
-    // System Engineer Refinement: Proximity-based sorting for Staff
     let sorted = [...allIssues].reverse();
     if (currentRole === 'faculty') {
-       // Mock staff location: Main Hall (300, 250)
        const staffPos = { x: 300, y: 250 };
-       sorted = issues.filter(i => i.status !== 'Completed' && i.status !== 'Verified').map(issue => {
+       sorted = allIssues.filter(i => i.status !== 'Completed' && i.status !== 'Verified').map(issue => {
           const loc = locations.find(l => l.id === issue.locationId) || { x: 0, y: 0 };
           const dist = Math.sqrt(Math.pow(loc.x - staffPos.x, 2) + Math.pow(loc.y - staffPos.y, 2));
           return { ...issue, dist };
        }).sort((a, b) => a.dist - b.dist);
     }
 
+    // Use DocumentFragment for performance
+    const fragment = document.createDocumentFragment();
+    
     sorted.forEach(issue => {
       const loc = locations.find(l => l.id === issue.locationId);
       const li = document.createElement('li');
       li.style.cssText = 'flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 15px; background: var(--bg-glass); border: 1px solid var(--border-glass); padding: 15px; border-radius: 12px;';
 
-      const priorityColor = issue.priority === 'Critical' ? 'var(--danger)' 
-                          : issue.priority === 'Warning' ? 'var(--warning)' 
-                          : 'var(--success)';
-      const priorityBadgeClass = issue.priority === 'Critical' ? 'badge-danger' 
-                               : issue.priority === 'Warning' ? 'badge-warning' 
-                               : 'badge-success';
-      const statusColor = issue.status === 'Resolved' || issue.status === 'Completed' ? 'var(--success)' 
-                        : issue.status === 'In Progress' || issue.status === 'Started' ? 'var(--warning)' 
-                        : 'var(--text-muted)';
+      const priorityBadgeClass = issue.priority === 'Critical' ? 'badge-danger' : issue.priority === 'Warning' ? 'badge-warning' : 'badge-success';
+      const statusColor = (issue.status === 'Resolved' || issue.status === 'Completed') ? 'var(--success)' : (issue.status === 'Started' || issue.status === 'In Progress') ? 'var(--warning)' : 'var(--text-muted)';
+      const dateStr = new Date(issue.createdAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
-      const dateStr = new Date(issue.createdAt).toLocaleString('en-IN', {
-        day: '2-digit', month: 'short',
-        hour: '2-digit', minute: '2-digit'
-      });
-
-      const typeIcons = {
-        electrical: '⚡', plumbing: '🚰', furniture: '🪑',
-        equipment: '💻', building: '🏢', infrastructure: '🏗️',
-        academic: '📚', transport: '🚌', hygiene: '🧹',
-        safety: '🔒', other: '📌', general: '📌'
-      };
-      const icon = typeIcons[issue.category.toLowerCase()] || '📌';
-      
-      const reporterIcon = issue.reportedBy && (issue.reportedBy.includes('Staff') || issue.reportedBy.includes('Faculty')) ? '👨‍🏫' 
-                        : issue.reportedBy && issue.reportedBy.includes('Administrator') ? '🏛️' 
-                        : '🎓';
+      const typeIcons = { electrical: '⚡', plumbing: '🚰', furniture: '🪑', equipment: '💻', building: '🏢', infrastructure: '🏗️', academic: '📚', transport: '🚌', hygiene: '🧹', safety: '🔒', other: '📌', general: '📌' };
+      const icon = typeIcons[issue.category?.toLowerCase()] || '📌';
+      const reporterIcon = (issue.reportedBy?.includes('Staff') || issue.reportedBy?.includes('Faculty')) ? '👨‍🏫' : issue.reportedBy?.includes('Administrator') ? '🏛️' : '🎓';
       const roleBadgeClass = reporterIcon === '👨‍🏫' ? 'badge-info' : reporterIcon === '🏛️' ? 'badge-primary' : 'badge-warning';
+      const reporterName = issue.reportedBy ? (issue.reportedBy.split(' ')[0] || 'User') : 'User';
 
-      // Calculate progress percentage based on status
       let progress = 10;
       if (issue.status === 'Started') progress = 35;
       if (issue.status === 'In Progress') progress = 65;
@@ -1229,10 +1743,8 @@ async function loadMaintenanceReports() {
             <span style="font-size: 0.7rem; color: var(--text-muted);">${dateStr}</span>
           </div>
         </div>
-
         <div class="maint-card-body" style="width: 100%; margin-bottom: 15px;">
           <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">${issue.description}</p>
-          
           <div class="progress-container" style="margin-bottom: 12px;">
             <div style="display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 5px; color: var(--text-muted);">
               <span>Status: <strong style="color: ${statusColor}">${issue.status}</strong></span>
@@ -1242,49 +1754,35 @@ async function loadMaintenanceReports() {
               <div style="width: ${progress}%; height: 100%; background: ${progress === 100 ? 'var(--success)' : 'var(--primary)'}; border-radius: 10px; transition: width 0.8s ease;"></div>
             </div>
           </div>
-
-          ${issue.image ? `<img src="${issue.image}" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border-glass);" alt="Issue Photo">` : ''}
+          ${issue.image ? `<img src="${issue.image}" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border-glass);" alt="Issue Photo" loading="lazy">` : ''}
         </div>
-
         <div class="maint-card-footer" style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05);">
           <div style="display: flex; gap: 10px; align-items: center;">
             <div style="display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.2); padding: 4px 10px; border-radius: 50px; font-size: 0.75rem;">
               <span>📍</span> <strong>${loc ? loc.name : (issue.locationId || 'Area')}</strong>
             </div>
-            <span class="badge ${roleBadgeClass}" style="font-size: 0.65rem; padding: 4px 8px; border-radius: 50px;">${reporterIcon} ${issue.reportedBy.split(' ')[0]}</span>
+            <span class="badge ${roleBadgeClass}" style="font-size: 0.65rem; padding: 4px 8px; border-radius: 50px;">${reporterIcon} ${reporterName}</span>
           </div>
-          
           <div style="display:flex; gap: 8px;">
             ${issue.status === 'Reported' ? `
-              <button type="button" class="submit-btn" style="padding: 6px 14px; font-size:0.75rem; margin-top:0; height: auto; background: var(--primary);"
-                onclick="updateIssueStatus('${issue.id}', 'Started')">
-                🚀 Start
-              </button>
+              <button type="button" class="submit-btn" style="padding: 6px 14px; font-size:0.75rem; margin-top:0; height: auto; background: var(--primary);" onclick="updateIssueStatus('${issue.id}', 'Started')">🚀 Start</button>
             ` : issue.status === 'Started' ? `
-              <button type="button" class="submit-btn" style="padding: 6px 14px; font-size:0.75rem; margin-top:0; height: auto; background: var(--warning);"
-                onclick="updateIssueStatus('${issue.id}', 'In Progress')">
-                🔄 Proceed
-              </button>
+              <button type="button" class="submit-btn" style="padding: 6px 14px; font-size:0.75rem; margin-top:0; height: auto; background: var(--warning);" onclick="updateIssueStatus('${issue.id}', 'In Progress')">🔄 Proceed</button>
             ` : issue.status === 'In Progress' ? `
-              <button type="button" class="submit-btn" style="padding: 6px 14px; font-size:0.75rem; margin-top:0; height: auto; background: var(--success);"
-                onclick="updateIssueStatus('${issue.id}', 'Completed')">
-                ✅ Complete
-              </button>
-            ` : `
-              <span style="font-size: 0.75rem; color: var(--success); font-weight: 700; display: flex; align-items: center; gap: 5px;">
-                <span style="font-size: 1.1rem;">🏆</span> Task Finished
-              </span>
-            `}
+              <button type="button" class="submit-btn" style="padding: 6px 14px; font-size:0.75rem; margin-top:0; height: auto; background: var(--success);" onclick="updateIssueStatus('${issue.id}', 'Completed')">✅ Complete</button>
+            ` : `<span style="font-size: 0.75rem; color: var(--success); font-weight: 700; display: flex; align-items: center; gap: 5px;"><span style="font-size: 1.1rem;">🏆</span> Task Finished</span>`}
           </div>
         </div>
       `;
-      maintList.appendChild(li);
+      fragment.appendChild(li);
     });
+
+    maintList.innerHTML = '';
+    maintList.appendChild(fragment);
 
     updateMaintenanceBadge(allIssues);
     loadPredictiveAlerts(allIssues);
     
-    // Update maintenance badge count
     const pendingCount = allIssues.filter(i => i.status !== 'Completed' && i.status !== 'Verified').length;
     const maintBadge = document.getElementById('maint-count-badge');
     if (maintBadge) maintBadge.textContent = `${pendingCount} Active Tasks`;
@@ -1293,24 +1791,39 @@ async function loadMaintenanceReports() {
   }
 }
 
-async function clearAllReports() {
+async function clearAllReports() { console.log("CLEAR ALL TRIGGERED");
   if (!confirm('Are you sure you want to delete ALL maintenance reports? This cannot be undone.')) return;
   
   try {
-    showToast('⏳', 'Clearing all reports...');
+    showToast('⏳', 'Clearing all reports from system...');
     
     // Clear local storage
     localStorage.removeItem('offlineIssues');
     localStorage.removeItem('reportDatabase');
+    
+    let serverCleared = false;
+    try {
+      const res = await fetch(`${API_BASE}/issues`, {
+        method: 'DELETE'
+      });
+      if (res.ok) serverCleared = true;
+    } catch (e) {
+      console.warn('Server unreachable during clear-all, but local data was reset.');
+    }
     
     // Refresh the UI
     loadMaintenanceReports();
     loadUserReports();
     updateAnalyticsDashboard();
     
-    showToast('✅', 'All reports cleared successfully.');
+    if (serverCleared) {
+      showToast('✅', 'All reports cleared from system.');
+    } else {
+      showToast('⚠️', 'Local cache cleared, but server was unreachable.');
+    }
   } catch (err) {
-    showToast('❌', 'Failed to clear reports.');
+    console.error('Clear All Error:', err);
+    showToast('❌', 'Failed to complete clear operation.');
   }
 }
 
@@ -1542,4 +2055,152 @@ async function loadPredictiveAlerts(issues) {
   if (!found) {
     alertList.innerHTML = '<li style="color: var(--text-muted); font-size: 0.85rem; padding: 10px 0;">All assets currently stable. No high-risk patterns detected.</li>';
   }
+}
+
+// ============================================
+// DATA TRANSPORT / EXPORT FUNCTIONS
+// ============================================
+
+/**
+ * Utility to download data as CSV
+ * @param {Array} rows - Array of objects or arrays
+ * @param {string} filename - Output filename
+ */
+function downloadCSV(rows, filename) {
+  if (!rows || !rows.length) {
+    showToast('⚠️', 'No data available to export.');
+    return;
+  }
+
+  const processRow = row => {
+    let finalVal = '';
+    for (let j = 0; j < row.length; j++) {
+      let innerValue = row[j] === null ? '' : row[j].toString();
+      if (row[j] instanceof Date) {
+        innerValue = row[j].toLocaleString();
+      }
+      let result = innerValue.replace(/"/g, '""');
+      if (result.search(/("|,|\n)/g) >= 0) result = '"' + result + '"';
+      if (j > 0) finalVal += ',';
+      finalVal += result;
+    }
+    return finalVal + '\n';
+  };
+
+  let csvFile = '';
+  for (let i = 0; i < rows.length; i++) {
+    csvFile += processRow(rows[i]);
+  }
+
+  const blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+  showToast('📥', `Exported ${filename} successfully!`);
+}
+
+/**
+ * Export Attendance Log to CSV
+ */
+function exportAttendance() {
+  const tbody = document.getElementById('att-log-body');
+  if (!tbody) return;
+
+  const rows = [['Date', 'Subject', 'Status', 'Time']];
+  const trs = tbody.querySelectorAll('tr');
+
+  trs.forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length >= 4) {
+      const row = [
+        tds[0].textContent.trim(),
+        tds[1].textContent.replace('NEW', '').trim(),
+        tds[2].textContent.trim(),
+        tds[3].textContent.trim()
+      ];
+      rows.push(row);
+    }
+  });
+
+  const name = currentUsername.replace(/\s+/g, '_');
+  downloadCSV(rows, `Attendance_Report_${name}_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+/**
+ * Export Exam Marks to CSV
+ */
+function exportMarks() {
+  const marksList = document.getElementById('exam-results-list');
+  if (!marksList) return;
+
+  const rows = [['Subject', 'Assessment', 'Marks']];
+  const items = marksList.querySelectorAll('li.panel-list-item');
+
+  if (items.length === 0) {
+    showToast('⚠️', 'No marks data to export.');
+    return;
+  }
+
+  items.forEach(item => {
+    const subject = item.querySelector('span[style*="font-weight:700"]')?.textContent.trim() || '';
+    const exam = item.querySelector('span[style*="font-size:0.75rem"]')?.textContent.trim() || '';
+    const marks = item.querySelector('.badge')?.textContent.trim() || '';
+    rows.push([subject, exam, marks]);
+  });
+
+  const name = currentUsername.replace(/\s+/g, '_');
+  downloadCSV(rows, `Marks_Report_${name}_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+/**
+ * Export Maintenance Tasks to CSV
+ */
+function exportMaintenance() {
+  if (!mockDatabase || mockDatabase.length === 0) {
+    showToast('⚠️', 'No maintenance tasks to export.');
+    return;
+  }
+
+  const rows = [['ID', 'Type', 'Location', 'Description', 'Severity', 'Status', 'Date']];
+  
+  mockDatabase.forEach(task => {
+    rows.push([
+      task.id,
+      task.type,
+      task.location,
+      task.description,
+      task.severity,
+      task.status,
+      new Date(task.timestamp).toLocaleString()
+    ]);
+  });
+
+  downloadCSV(rows, `Maintenance_Report_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+/**
+ * Export System Analytics Summary
+ */
+function exportAnalytics() {
+  const rows = [['Metric', 'Value', 'Status']];
+  
+  // High-level stats
+  rows.push(['Health Score', document.getElementById('health-score-text')?.textContent || '94.8%', 'Stable']);
+  rows.push(['Active Tasks', document.getElementById('stat-active-tasks')?.textContent || '12', 'Normal']);
+  rows.push(['Energy Usage', '4.2 kW/h', 'Optimal']);
+  rows.push(['Water Usage', '1.2k Gal', 'Optimal']);
+  
+  // Performance improvements
+  rows.push(['Avg Reporting Time', '5s', '88% Faster']);
+  rows.push(['Avg Resolution Time', '4.2h', '35% Faster']);
+  rows.push(['AI Accuracy', '98%', 'Excellent']);
+
+  downloadCSV(rows, `System_Analytics_${new Date().toISOString().slice(0,10)}.csv`);
 }
