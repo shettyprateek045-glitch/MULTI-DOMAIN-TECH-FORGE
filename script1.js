@@ -71,15 +71,24 @@ if (socket) {
   socket.on('newIssue', (issue) => {
     showToast('🔔', `New report: ${issue.title}`);
     debouncedUpdateDashboard();
+    if (pages.dashboard && pages.dashboard.classList.contains('active')) {
+      setTimeout(updateAIConsole, 200);
+    }
   });
   
   socket.on('issueUpdated', (issue) => {
     debouncedUpdateDashboard();
+    if (pages.dashboard && pages.dashboard.classList.contains('active')) {
+      setTimeout(updateAIConsole, 200);
+    }
   });
 
   socket.on('allIssuesCleared', () => {
     showToast('🗑️', 'Administrator cleared all maintenance reports.');
     debouncedUpdateDashboard();
+    if (pages.dashboard && pages.dashboard.classList.contains('active')) {
+      setTimeout(updateAIConsole, 200);
+    }
   });
 
   socket.on('newMarkAdded', (mark) => {
@@ -94,6 +103,24 @@ if (socket) {
       showToast('📊', 'Attendance records updated.');
       loadStudentAttendance(currentUsername);
     }
+  });
+
+  socket.on('newAuditLog', (log) => {
+    if (pages.dashboard && pages.dashboard.classList.contains('active')) {
+      setTimeout(updateAIConsole, 100);
+    }
+  });
+
+  socket.on('outageModeChanged', (data) => {
+    const toggle = document.getElementById('outage-toggle');
+    if (toggle) toggle.checked = data.enabled;
+    showToast('🔄', `cascadeflow Outage Simulation: ${data.enabled ? 'ENABLED (Triggering Fallbacks)' : 'DISABLED (Stable)'}`);
+    setTimeout(updateAIConsole, 100);
+  });
+
+  socket.on('auditLogsCleared', () => {
+    showToast('🗑️', 'AI audit logs cleared.');
+    setTimeout(updateAIConsole, 100);
   });
 }
 
@@ -381,7 +408,7 @@ function executeLogin(username) {
     const academicEls = ['menu-divider-academics','menu-label-academics','menu-btn-exams','menu-btn-fees','menu-btn-timetable'];
     
     if (currentRole === 'admin') {
-      const adminTabs = ['maintenance', 'analytics'];
+      const adminTabs = ['maintenance', 'analytics', 'ai'];
       allTabBtns.forEach(btn => {
         btn.style.display = adminTabs.includes(btn.getAttribute('data-tab')) ? 'inline-block' : 'none';
       });
@@ -395,10 +422,12 @@ function executeLogin(username) {
       const attBtn = document.querySelector('.tab-btn[data-tab="attendance-entry"]');
       const repBtn = document.querySelector('.tab-btn[data-tab="report"]');
       const probBtn = document.querySelector('.tab-btn[data-tab="problems"]');
+      const aiBtn = document.querySelector('.tab-btn[data-tab="ai"]');
       if(marksBtn) marksBtn.style.display = 'inline-block';
       if(attBtn) attBtn.style.display = 'inline-block';
       if(repBtn) repBtn.style.display = 'inline-block';
       if(probBtn) probBtn.style.display = 'none';
+      if(aiBtn) aiBtn.style.display = 'inline-block';
       academicEls.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = ''; });
       if(typeof populateFacultyStudentLists === 'function') populateFacultyStudentLists();
       switchTab('marks-entry');
@@ -1633,7 +1662,7 @@ async function renderDigitalTwin() {
   }
 }
 
-// Hook into existing switchTab to trigger analytics/maintenance update
+// Hook into existing switchTab to trigger analytics/maintenance/ai update
 const originalSwitchTab = switchTab;
 switchTab = function(tabName) {
   originalSwitchTab(tabName);
@@ -1648,6 +1677,13 @@ switchTab = function(tabName) {
   }
   if (tabName === 'maintenance') {
     loadMaintenanceReports();
+  }
+  if (tabName === 'ai') {
+    setTimeout(updateAIConsole, 100);
+    if (window.aiInterval) clearInterval(window.aiInterval);
+    window.aiInterval = setInterval(updateAIConsole, 3000);
+  } else {
+    if (window.aiInterval) clearInterval(window.aiInterval);
   }
 };
 
@@ -2203,4 +2239,300 @@ function exportAnalytics() {
   rows.push(['AI Accuracy', '98%', 'Excellent']);
 
   downloadCSV(rows, `System_Analytics_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+// ============================================
+//   AI ENGINE: HINDSIGHT MEMORY & CASCADEFLOW
+// ============================================
+
+// Local fallback values if server is offline
+let localAuditLogs = [];
+let localOutage = false;
+
+async function updateAIConsole() {
+  try {
+    // 1. Fetch Outage status
+    try {
+      const outageRes = await fetch(`${API_BASE}/cascadeflow/outage-mode`);
+      if (outageRes.ok) {
+        const data = await outageRes.json();
+        localOutage = data.outageMode;
+        const toggle = document.getElementById('outage-toggle');
+        if (toggle) toggle.checked = localOutage;
+      }
+    } catch (e) {
+      console.warn("Outage status fallback to local");
+    }
+
+    // Update outage indicator badge
+    const outageBadge = document.getElementById('outage-status-badge');
+    if (outageBadge) {
+      if (localOutage) {
+        outageBadge.textContent = "CRITICAL OUTAGE ACTIVE";
+        outageBadge.className = "badge badge-danger";
+        outageBadge.style.animation = "badgePulse 1.2s ease-in-out infinite";
+      } else {
+        outageBadge.textContent = "AI Router Stable";
+        outageBadge.className = "badge badge-success";
+        outageBadge.style.animation = "none";
+      }
+    }
+
+    // 2. Fetch cascadeflow Audit Logs
+    let logs = [];
+    try {
+      const logRes = await fetch(`${API_BASE}/cascadeflow/audit-logs`);
+      if (logRes.ok) logs = await logRes.json();
+    } catch (e) {
+      // Offline fallback logs
+      logs = [...localAuditLogs];
+    }
+
+    // Populate Audit Trail
+    const scrollContainer = document.getElementById('cascadeflow-audit-scroll');
+    if (scrollContainer) {
+      if (logs.length === 0) {
+        scrollContainer.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:30px 0;">No routing decisions audited yet. Submit a new report to trigger cascadeflow.</div>`;
+      } else {
+        const sortedLogs = [...logs].reverse();
+        scrollContainer.innerHTML = sortedLogs.map(log => {
+          const badgeClass = log.status === 'Fallback' ? 'badge-danger' : log.status === 'Escalated' ? 'badge-warning' : 'badge-success';
+          const modelColor = log.selectedModel.includes('Llama') ? '#3b82f6' : log.selectedModel.includes('Flash') ? '#10b981' : log.selectedModel.includes('Pro') ? '#8b5cf6' : '#ef4444';
+          const timeStr = new Date(log.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          
+          return `
+            <div class="stat-card" style="margin-bottom:0; background:rgba(255,255,255,0.4); border: 1px solid var(--border-glass); border-left: 4px solid ${modelColor}; padding:14px; position:relative; overflow:hidden;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:0.7rem; font-weight:700; color:var(--text-muted);">${timeStr} | Audit Trail</span>
+                <span class="badge ${badgeClass}" style="font-size:0.6rem;">${log.status.toUpperCase()}</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px;">
+                <span style="font-size:0.85rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:5px;">
+                  🤖 <span style="color:${modelColor}">${log.selectedModel}</span>
+                </span>
+                <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary); background:rgba(0,0,0,0.03); padding:2px 8px; border-radius:50px;">
+                  $${log.costUsd.toFixed(5)}
+                </span>
+              </div>
+              <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.4; margin-bottom:6px; font-weight:500;">
+                <strong>Reason:</strong> ${log.routingReason}
+              </p>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--text-muted); border-top:1px solid rgba(0,0,0,0.03); padding-top:6px;">
+                <span>Complexity: <strong>${log.inputLength} chars</strong></span>
+                <span>Latency: <strong style="color:var(--text-primary)">${log.latencyMs}ms</strong></span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // 3. Compute cascadeflow Statistics
+    if (logs.length > 0) {
+      // A. Cost saved calculation
+      // Baseline is assuming everything went to Expert model ($0.0150 per query)
+      const baselineTotal = logs.length * 0.0150;
+      const actualTotal = logs.reduce((sum, log) => sum + log.costUsd, 0);
+      const saved = Math.max(0, baselineTotal - actualTotal);
+      const percentSaved = baselineTotal > 0 ? ((saved / baselineTotal) * 100).toFixed(1) : "0.0";
+      
+      const costSavedEl = document.getElementById('cascadeflow-cost-saved');
+      if (costSavedEl) costSavedEl.textContent = `$${saved.toFixed(2)}`;
+      
+      const costPercentBadge = document.querySelector('#panel-ai .stat-card:nth-child(1) .badge');
+      if (costPercentBadge) costPercentBadge.textContent = `${percentSaved}% Saved`;
+
+      // B. Average Latency
+      const sumLatency = logs.reduce((sum, log) => sum + log.latencyMs, 0);
+      const avgLatency = Math.round(sumLatency / logs.length);
+      const avgLatencyEl = document.getElementById('cascadeflow-avg-latency');
+      if (avgLatencyEl) avgLatencyEl.textContent = `${avgLatency}ms`;
+
+      // C. Cheap ratio & balance
+      const cheapCount = logs.filter(log => log.selectedModel.includes('Llama') || log.selectedModel.includes('Flash')).length;
+      const cheapRatio = Math.round((cheapCount / logs.length) * 100);
+      
+      const cheapRatioBadge = document.getElementById('cascadeflow-cheap-ratio');
+      if (cheapRatioBadge) cheapRatioBadge.textContent = `${cheapRatio}% Cheap`;
+      
+      const cheapText = document.getElementById('cascadeflow-model-count');
+      if (cheapText) {
+        if (cheapRatio >= 75) cheapText.textContent = "Extremely Optimized";
+        else if (cheapRatio >= 50) cheapText.textContent = "Highly Optimized";
+        else cheapText.textContent = "Balanced Routing";
+      }
+
+      // D. Escalations
+      const escalationsCount = logs.filter(log => log.status === 'Escalated' || log.status === 'Fallback').length;
+      const escalationsEl = document.getElementById('cascadeflow-escalations');
+      if (escalationsEl) escalationsEl.textContent = `${escalationsCount} Overrides`;
+      
+      const escText = document.getElementById('cascadeflow-escalation-text');
+      if (escText) escText.textContent = `${logs.filter(log => log.status === 'Fallback').length} outages bypassed dynamically`;
+    }
+
+    // 4. Fetch Hindsight Location Repeated Anomalies
+    let insights = [];
+    try {
+      const insightRes = await fetch(`${API_BASE}/hindsight/insights`);
+      if (insightRes.ok) insights = await insightRes.json();
+    } catch (e) {
+      console.warn("Hindsight insights fetch failed");
+    }
+
+    const repeatedList = document.getElementById('repeated-failure-list');
+    if (repeatedList) {
+      // Find locations with repeated category issues (count >= 3 recently)
+      const repeatItems = [];
+      insights.forEach(ins => {
+        const breakdowns = ins.categoryBreakdown || {};
+        Object.entries(breakdowns).forEach(([cat, count]) => {
+          if (count >= 3 && ['computer_lab', 'electricity', 'washroom', 'water', 'furniture', 'laboratory', 'classroom'].includes(cat)) {
+            let riskColor = ins.riskScore >= 75 ? 'var(--danger)' : 'var(--warning)';
+            repeatItems.push(`
+              <li style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card); border: 1px solid var(--border-glass); padding:8px 12px; border-radius:var(--radius-sm); font-size:0.8rem; font-weight:600; color:var(--text-secondary);">
+                <span>📍 <strong>${ins.locationName}</strong> has received <strong style="color:${riskColor}">${count} recurring ${cat} complaints</strong> recently.</span>
+                <span class="badge" style="background:${ins.riskScore >= 75 ? 'var(--danger)' : 'var(--warning)'}; color:white; font-size:0.65rem;">${ins.riskLevel.toUpperCase()}</span>
+              </li>
+            `);
+          }
+        });
+      });
+
+      if (repeatItems.length === 0) {
+        repeatedList.innerHTML = `<li style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:8px 0; border:1px dashed var(--border-glass); border-radius:var(--radius-sm); background:rgba(255,255,255,0.2);">
+          🟢 No recurring failure density cycles active. Campus facilities stable.
+        </li>`;
+      } else {
+        repeatedList.innerHTML = repeatItems.join('');
+      }
+    }
+
+    // 5. Populate Location Selector if empty
+    const selector = document.getElementById('hindsight-location-selector');
+    if (selector && selector.options.length <= 1) {
+      let locations = [];
+      try {
+        const locRes = await fetch(`${API_BASE}/locations`);
+        if (locRes.ok) locations = await locRes.json();
+      } catch (e) {
+        locations = [
+          { id: 'room101', name: 'Classroom 101' },
+          { id: 'room102', name: 'Classroom 102' },
+          { id: 'server_room', name: 'Server Room' },
+          { id: 'lab1', name: 'Computer Lab' },
+          { id: 'hall1', name: 'Main Hall' },
+          { id: 'playground', name: 'Playground' },
+          { id: 'main_gate', name: 'Main Gate' },
+          { id: 'cafeteria', name: 'Student Cafeteria' }
+        ];
+      }
+
+      selector.innerHTML = `<option value="" disabled>Select Location to Query</option>` + 
+        locations.map(loc => `<option value="${loc.id}">${loc.name}</option>`).join('');
+      
+      // Auto select Computer Lab (default seed with electricity issues history)
+      selector.value = 'lab1';
+      loadHindsightLocationMemory('lab1');
+    }
+
+  } catch (err) {
+    console.error("Failed to update AI Console Dashboard:", err);
+  }
+}
+
+async function loadHindsightLocationMemory(locationId) {
+  if (!locationId) return;
+  
+  const circle = document.getElementById('hindsight-risk-circle');
+  const level = document.getElementById('hindsight-risk-level');
+  const countText = document.getElementById('hindsight-history-count');
+  const insightsText = document.getElementById('hindsight-memory-insights');
+  const recommendationText = document.getElementById('hindsight-memory-recommendation');
+  const logsTable = document.getElementById('hindsight-location-logs');
+
+  try {
+    const res = await fetch(`${API_BASE}/hindsight/memory/${locationId}`);
+    if (res.ok) {
+      const data = await res.json();
+      
+      // Risk Score & Level
+      const score = data.riskScore;
+      if (circle) {
+        circle.textContent = `${score}%`;
+        const color = score >= 75 ? 'var(--danger)' : score >= 40 ? 'var(--warning)' : 'var(--success)';
+        circle.style.borderColor = color;
+        circle.style.color = color;
+        if (level) {
+          level.textContent = data.riskLevel;
+          level.style.color = color;
+        }
+      }
+      
+      if (countText) countText.textContent = `${data.history.length} total historical issues`;
+      if (insightsText) insightsText.textContent = data.insights;
+      if (recommendationText) recommendationText.textContent = data.recommendation;
+
+      // History Table
+      if (logsTable) {
+        if (data.history.length === 0) {
+          logsTable.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No history recorded for this location yet.</td></tr>`;
+        } else {
+          const sortedHistory = [...data.history].reverse();
+          logsTable.innerHTML = sortedHistory.map(issue => {
+            const dateStr = new Date(issue.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+            const priorityBadge = issue.priority === 'Critical' ? 'badge-danger' : issue.priority === 'Warning' ? 'badge-warning' : 'badge-success';
+            
+            return `
+              <tr>
+                <td style="font-weight:600; color:var(--text-primary); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${issue.title || 'Infrastructure issue'}</td>
+                <td><span style="background:rgba(0,0,0,0.05); padding:2px 8px; border-radius:50px; text-transform:uppercase; font-size:0.62rem; font-weight:700;">${issue.category}</span></td>
+                <td><span class="badge ${priorityBadge}" style="font-size:0.6rem; padding:3px 6px;">${issue.priority}</span></td>
+                <td><strong style="color:var(--primary-dark)">${issue.status}</strong></td>
+                <td><span style="color:var(--text-muted)">${dateStr}</span></td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load Hindsight memory for location:", err);
+  }
+}
+
+async function toggleOutageMode(enabled) {
+  try {
+    const res = await fetch(`${API_BASE}/cascadeflow/toggle-outage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: enabled })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      showToast('🔄', `cascadeflow Outage Simulation Mode: ${data.outageMode ? 'ACTIVE (Triggering fallbacks)' : 'INACTIVE (Stable)'}`);
+      setTimeout(updateAIConsole, 100);
+    }
+  } catch (err) {
+    console.error("Outage toggle API error:", err);
+    localOutage = enabled;
+    showToast('🔄', `cascadeflow Outage Simulation Mode toggled locally: ${enabled ? 'ACTIVE' : 'INACTIVE'}`);
+    setTimeout(updateAIConsole, 100);
+  }
+}
+
+async function clearAuditLogs() {
+  if (!confirm("Are you sure you want to clear AI routing logs?")) return;
+  try {
+    const res = await fetch(`${API_BASE}/cascadeflow/clear-logs`, { method: 'POST' });
+    if (res.ok) {
+      showToast('🗑️', 'AI audit logs cleared successfully.');
+      setTimeout(updateAIConsole, 100);
+    }
+  } catch (err) {
+    console.error("Failed to clear audit logs:", err);
+    localAuditLogs = [];
+    showToast('🗑️', 'Local logs cleared.');
+    setTimeout(updateAIConsole, 100);
+  }
 }

@@ -2074,3 +2074,133 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================
+   AI ENGINE PANEL (HINDSIGHT & CASCADEFLOW)
+   ============================================ */
+
+/* Outage Slider Toggle */
+.switch-toggle {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.switch-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider-toggle {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.08);
+  border: 1px solid var(--border-glass);
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider-toggle:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.switch-toggle input:checked + .slider-toggle {
+  background-color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.switch-toggle input:focus + .slider-toggle {
+  box-shadow: 0 0 1px var(--danger);
+}
+
+.switch-toggle input:checked + .slider-toggle:before {
+  transform: translateX(24px);
+}
+
+/* Custom Scrollbar for Audit logs */
+#cascadeflow-audit-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+#cascadeflow-audit-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 10px;
+}
+
+#cascadeflow-audit-scroll::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 10px;
+}
+
+#cascadeflow-audit-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}
+
+/* Repeated failure alerts layout */
+#repeated-failure-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#repeated-failure-list li {
+  transition: var(--transition);
+}
+
+#repeated-failure-list li:hover {
+  transform: translateX(3px);
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Outage Status Pulse */
+@keyframes badgePulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  70% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Clean selector styles for memory location selectors */
+.hindsight-location-picker {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  outline: none;
+  transition: var(--transition);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.hindsight-location-picker:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.hindsight-location-picker option {
+  background: white;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+

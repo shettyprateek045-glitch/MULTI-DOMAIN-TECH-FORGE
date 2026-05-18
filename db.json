@@ -60,8 +60,22 @@
       "id": "playground",
       "name": "Playground",
       "x": 600,
-      "y": 250,
-      "importance": 2
+      "y": 180,
+      "importance": 4
+    },
+    {
+      "id": "main_gate",
+      "name": "Main Gate",
+      "x": 620,
+      "y": 380,
+      "importance": 9
+    },
+    {
+      "id": "cafeteria",
+      "name": "Student Cafeteria",
+      "x": 180,
+      "y": 420,
+      "importance": 7
     }
   ],
   "assets": [
@@ -86,32 +100,156 @@
   ],
   "issues": [
     {
-      "id": "8c97369c-a642-40bd-ac5e-dd1398a28e17",
-      "title": "a",
-      "description": "xzx",
-      "category": "academic",
-      "locationId": "room101",
+      "id": "hist-1",
+      "title": "Severe short circuit near server rack",
+      "description": "Massive spark and burning smell near the server rack in the Computer Lab. Needs urgent electrical repair.",
+      "category": "electricity",
+      "locationId": "lab1",
       "reportedBy": "Staff Alok Sen",
       "beforeImage": null,
       "afterImage": null,
       "status": "Reported",
-      "priority": "Normal",
-      "createdAt": "2026-05-11T15:43:49.449Z",
-      "updatedAt": "2026-05-11T15:43:49.449Z"
+      "priority": "Critical",
+      "createdAt": "2026-05-10T12:00:00.000Z",
+      "updatedAt": "2026-05-10T12:00:00.000Z"
     },
     {
-      "id": "d23eb18f-7bcd-4f22-84b8-075128a042c0",
-      "title": "df",
-      "description": "fd",
-      "category": "academic",
+      "id": "hist-2",
+      "title": "Frequent voltage fluctuations",
+      "description": "Computers are repeatedly shutting down due to unstable voltage and faulty wiring.",
+      "category": "electricity",
+      "locationId": "lab1",
+      "reportedBy": "Student Alice Smith",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Started",
+      "priority": "Warning",
+      "createdAt": "2026-05-09T09:30:00.000Z",
+      "updatedAt": "2026-05-18T03:12:41.791Z"
+    },
+    {
+      "id": "hist-3",
+      "title": "Broken cooling fan and electrical hum",
+      "description": "The ceiling fan is making a loud electrical humming noise and occasionally sparking.",
+      "category": "electricity",
+      "locationId": "lab1",
+      "reportedBy": "Staff Nalini Mehta",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Warning",
+      "createdAt": "2026-05-08T14:15:00.000Z",
+      "updatedAt": "2026-05-08T14:15:00.000Z"
+    },
+    {
+      "id": "hist-4",
+      "title": "Broken Chair in Classroom 101",
+      "description": "A student desk chair has a broken leg.",
+      "category": "furniture",
       "locationId": "room101",
+      "reportedBy": "Staff Farhan Shaikh",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Completed",
+      "priority": "Low",
+      "createdAt": "2026-04-28T11:00:00.000Z",
+      "updatedAt": "2026-04-30T16:00:00.000Z"
+    },
+    {
+      "id": "hist-6",
+      "title": "Washroom hygiene issue",
+      "description": "The boys' washroom near the cafeteria has a severe hygiene issue and clogged toilet.",
+      "category": "washroom",
+      "locationId": "cafeteria",
+      "reportedBy": "Staff Om Prakash",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Warning",
+      "createdAt": "2026-05-12T10:00:00.000Z",
+      "updatedAt": "2026-05-12T10:00:00.000Z"
+    },
+    {
+      "id": "hist-7",
+      "title": "Leaking drinking water cooler",
+      "description": "The drinking water cooler in the main hall is leaking heavily, creating a puddle.",
+      "category": "water",
+      "locationId": "hall1",
+      "reportedBy": "Staff Suresh Bhattacharya",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "In Progress",
+      "priority": "Critical",
+      "createdAt": "2026-05-14T07:45:00.000Z",
+      "updatedAt": "2026-05-18T03:12:47.198Z"
+    },
+    {
+      "id": "hist-8",
+      "title": "Clogged wash basin drains",
+      "description": "Cafeteria washing basins are draining extremely slowly. Overflows during lunch rush.",
+      "category": "washroom",
+      "locationId": "cafeteria",
+      "reportedBy": "Student Ananya Patel",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Warning",
+      "createdAt": "2026-05-13T13:20:00.000Z",
+      "updatedAt": "2026-05-13T13:20:00.000Z"
+    },
+    {
+      "id": "hist-batch",
+      "title": "Multiple minor electrical failures",
+      "description": "11 other small electrical occurrences reported by students in the computer lab in past weeks.",
+      "category": "electricity",
+      "locationId": "lab1",
       "reportedBy": "Staff Alok Sen",
       "beforeImage": null,
       "afterImage": null,
       "status": "Reported",
-      "priority": "Normal",
-      "createdAt": "2026-05-11T16:00:04.077Z",
-      "updatedAt": "2026-05-11T16:00:04.077Z"
+      "priority": "Warning",
+      "createdAt": "2026-05-02T10:00:00.000Z",
+      "updatedAt": "2026-05-02T10:00:00.000Z"
+    }
+  ],
+  "marks": [],
+  "attendance": [],
+  "aiAuditLogs": [
+    {
+      "id": "audit-1",
+      "timestamp": "2026-05-18T07:45:12.120Z",
+      "inputLength": 12,
+      "category": "furniture",
+      "hasImage": false,
+      "selectedModel": "Llama 3 8B (Lightweight)",
+      "routingReason": "Simple text classification; categorized category under Llama cheap route.",
+      "latencyMs": 48,
+      "costUsd": 0.00001,
+      "status": "Success"
+    },
+    {
+      "id": "audit-2",
+      "timestamp": "2026-05-18T07:48:33.450Z",
+      "inputLength": 84,
+      "category": "classroom",
+      "hasImage": true,
+      "selectedModel": "Gemini 1.5 Pro (Advanced Vision)",
+      "routingReason": "Image uploaded for cracked smartboard. Vision required for complex damage assessment.",
+      "latencyMs": 520,
+      "costUsd": 0.0025,
+      "status": "Success"
+    },
+    {
+      "id": "audit-3",
+      "timestamp": "2026-05-18T07:52:19.890Z",
+      "inputLength": 32,
+      "category": "electricity",
+      "hasImage": false,
+      "selectedModel": "Claude 3.5 Sonnet (Expert safety)",
+      "routingReason": "Security danger identified in text ('short circuit sparking in lab'). Escalated to expert model.",
+      "latencyMs": 950,
+      "costUsd": 0.015,
+      "status": "Escalated"
     }
   ]
 }

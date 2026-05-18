@@ -187,6 +187,7 @@
         <button class="tab-btn" data-tab="problems" onclick="switchTab('problems')">👨‍🔧 Maintenance Report</button>
         <button class="tab-btn" data-tab="maintenance" onclick="switchTab('maintenance')" style="display:none;">🛠️ Maintenance Tasks</button>
         <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')" style="display:none;">📈 Admin Dashboard</button>
+        <button class="tab-btn" data-tab="ai" onclick="switchTab('ai')" style="display:none;">🧠 AI Intelligence</button>
       </div>
 
       <!-- ====== TAB: Attendance ====== -->
@@ -409,11 +410,18 @@
                 <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Category</label>
                 <select id="report-category" required style="margin-bottom: 0;">
                   <option value="" disabled selected>Select Category</option>
-                  <option value="infrastructure">🏗️ Infrastructure</option>
-                  <option value="academic">📚 Academic</option>
-                  <option value="transport">🚌 Transport</option>
-                  <option value="hygiene">🧹 Hygiene</option>
-                  <option value="safety">🔒 Safety</option>
+                  <option value="classroom">🏫 Classroom Monitoring</option>
+                  <option value="laboratory">🔬 Laboratory Maintenance</option>
+                  <option value="washroom">🚻 Washroom Cleanliness</option>
+                  <option value="water">💧 Water Facility Monitoring</option>
+                  <option value="electricity">⚡ Electricity & Fan Monitoring</option>
+                  <option value="cctv">📷 CCTV & Security Monitoring</option>
+                  <option value="playground">⚽ Playground Maintenance</option>
+                  <option value="attendance_infra">✅ Smart Attendance Infra</option>
+                  <option value="computer_lab">💻 Computer Lab Status</option>
+                  <option value="bus">🚌 School Bus Monitoring</option>
+                  <option value="fire_safety">🧯 Fire Safety Equipment</option>
+                  <option value="furniture">🪑 Broken Furniture Reporting</option>
                   <option value="other">📌 Other</option>
                 </select>
               </div>
@@ -476,11 +484,18 @@
                 <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Problem Type</label>
                 <select id="problem-type" required style="margin-bottom: 0;">
                   <option value="" disabled selected>Select Type</option>
-                  <option value="electrical">⚡ Electrical / Power</option>
-                  <option value="plumbing">🚰 Plumbing / Water</option>
-                  <option value="furniture">🪑 Broken Furniture</option>
-                  <option value="equipment">💻 IT / Equipment</option>
-                  <option value="building">🏢 Building / Structural</option>
+                  <option value="classroom">🏫 Classroom Monitoring</option>
+                  <option value="laboratory">🔬 Laboratory Maintenance</option>
+                  <option value="washroom">🚻 Washroom Cleanliness</option>
+                  <option value="water">💧 Water Facility Monitoring</option>
+                  <option value="electricity">⚡ Electricity & Fan Monitoring</option>
+                  <option value="cctv">📷 CCTV & Security Monitoring</option>
+                  <option value="playground">⚽ Playground Maintenance</option>
+                  <option value="attendance_infra">✅ Smart Attendance Infra</option>
+                  <option value="computer_lab">💻 Computer Lab Status</option>
+                  <option value="bus">🚌 School Bus Monitoring</option>
+                  <option value="fire_safety">🧯 Fire Safety Equipment</option>
+                  <option value="furniture">🪑 Broken Furniture Reporting</option>
                   <option value="other">📌 Other</option>
                 </select>
               </div>
@@ -745,6 +760,201 @@
 > System idle. Ready for testing.
              </div>
           </div>
+        </div>
+      </div>
+
+      <!-- ====== TAB: AI Intelligence ====== -->
+      <div class="tab-panel" id="panel-ai">
+        <div class="ai-header-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(6, 182, 212, 0.1)); border-radius: var(--radius-lg); border: 1px solid rgba(99, 102, 241, 0.25);">
+          <div>
+            <h3 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 1.4rem; display: flex; align-items: center; gap: 8px; color: var(--text-primary);">🧠 Hindsight™ Memory & cascadeflow™ Router</h3>
+            <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--text-muted);">Real-time AI model routing, edge latency optimization, and location-based persistent complaint memory.</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px; background: var(--bg-card); padding: 8px 16px; border-radius: 50px; border: 1px solid var(--border-glass);">
+              <span style="font-size: 0.8rem; font-weight: bold; color: var(--text-secondary);">Simulate Outage:</span>
+              <label class="switch-toggle" style="position: relative; display: inline-block; width: 44px; height: 22px;">
+                <input type="checkbox" id="outage-toggle" onchange="toggleOutageMode(this.checked)" style="opacity: 0; width: 0; height: 0;">
+                <span class="slider-toggle" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px;"></span>
+              </label>
+            </div>
+            <button class="export-btn" onclick="clearAuditLogs()" style="background: var(--danger); color: white; border: none; padding: 8px 16px;">🗑️ Clear Logs</button>
+          </div>
+        </div>
+
+        <!-- cascadeflow Statistics Cards -->
+        <div class="attendance-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+          <!-- Card 1: Cost Optimization -->
+          <div class="stat-card" style="border-left: 4px solid var(--success);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Cost Optimization</span>
+              <span class="badge badge-success" style="font-size: 0.65rem;">94.2% Saved</span>
+            </div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary);" id="cascadeflow-cost-saved">$1,245.20</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Optimized Router vs. Full Expert route</div>
+            <div class="progress-bar-wrap" style="margin-top: 10px;">
+              <div class="progress-track" style="height: 6px; background: rgba(0,0,0,0.05);">
+                <div class="progress-fill" style="width: 94.2%; background: var(--success);"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Card 2: Latency Reduction -->
+          <div class="stat-card" style="border-left: 4px solid var(--info);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Average Latency</span>
+              <span class="badge badge-info" style="font-size: 0.65rem;">8.5x Speedup</span>
+            </div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary);" id="cascadeflow-avg-latency">108ms</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Sub-120ms dynamic classify path</div>
+            <div class="progress-bar-wrap" style="margin-top: 10px;">
+              <div class="progress-track" style="height: 6px; background: rgba(0,0,0,0.05);">
+                <div class="progress-fill" style="width: 88%; background: var(--info);"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Card 3: Model Distribution -->
+          <div class="stat-card" style="border-left: 4px solid var(--primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Router Balance</span>
+              <span class="badge badge-primary" style="font-size: 0.65rem;" id="cascadeflow-cheap-ratio">73% Cheap</span>
+            </div>
+            <div style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin-top: 6px;" id="cascadeflow-model-count">Llama/Flash Heavy</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Dynamic routing load balancer</div>
+            <div class="progress-bar-wrap" style="margin-top: 10px;">
+              <div class="progress-track" style="height: 6px; background: rgba(0,0,0,0.05);">
+                <div class="progress-fill" style="width: 73%; background: var(--primary);"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Card 4: Quality Escalations -->
+          <div class="stat-card" style="border-left: 4px solid var(--danger);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Smart Escalation</span>
+              <span class="badge badge-danger" id="outage-status-badge" style="font-size: 0.65rem;">Active</span>
+            </div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary);" id="cascadeflow-escalations">3 Overrides</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;" id="cascadeflow-escalation-text">High-hazard overrides resolved</div>
+            <div class="progress-bar-wrap" style="margin-top: 10px;">
+              <div class="progress-track" style="height: 6px; background: rgba(0,0,0,0.05);">
+                <div class="progress-fill" style="width: 15%; background: var(--danger);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; margin-bottom: 24px;">
+          
+          <!-- Hindsight Memory & History Analytics (Left) -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Repeated Complaint Detection Alert Box -->
+            <div class="stat-card" style="background: rgba(244, 63, 94, 0.04); border: 1px solid rgba(244, 63, 94, 0.25); border-left: 5px solid var(--danger);">
+              <h4 style="color: var(--danger); font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: 700; font-size: 1rem;">
+                ⚠️ Repeated Infrastructure Failures Detected (Hindsight Memory)
+              </h4>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">The AI Agent scans the location index for density anomalies. The following zones have critical recurring trends:</p>
+              <ul id="repeated-failure-list" style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px;">
+                <!-- Dynamically populated from JS -->
+              </ul>
+            </div>
+
+            <!-- Persistent AI Memory Explorer -->
+            <div class="panel-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="font-family: 'Outfit', sans-serif; margin-bottom: 0;">📍 Persistent Location Risk & Recommendation Memory</h3>
+                <div>
+                  <select id="hindsight-location-selector" onchange="loadHindsightLocationMemory(this.value)" style="padding: 6px 12px; font-size: 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border-glass); background: var(--bg-card); font-family: 'Inter', sans-serif;">
+                    <option value="" disabled selected>Select Location to Query</option>
+                    <!-- Populated by JS -->
+                  </select>
+                </div>
+              </div>
+              <p class="analytics-desc">Select any school zone or municipal asset sector to retrieve the agent's persistent Hindsight historical memory database, risk assessment predictions, and failure recommendations.</p>
+              
+              <div id="hindsight-memory-container" style="display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 15px; background: rgba(0,0,0,0.02); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+                <!-- Risk KPI Card -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                  <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 8px;">Risk Assessment Score</div>
+                  <div style="width: 90px; height: 90px; border-radius: 50%; border: 6px solid var(--danger); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: var(--danger); margin-bottom: 10px; font-family: 'Outfit';" id="hindsight-risk-circle">
+                    --%
+                  </div>
+                  <div style="font-weight: 700; font-size: 0.95rem; color: var(--danger);" id="hindsight-risk-level">Calculating...</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;" id="hindsight-history-count">-- total history</div>
+                </div>
+
+                <!-- Recommendation & Insights -->
+                <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                  <div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 4px;">Memory Insights</div>
+                    <p style="font-size: 0.88rem; color: var(--text-primary); font-weight: 600; line-height: 1.4;" id="hindsight-memory-insights">Select a location to retrieve historical memory...</p>
+                  </div>
+                  <div style="margin-top: 12px; padding: 10px; background: rgba(99, 102, 241, 0.05); border-left: 4px solid var(--primary); border-radius: var(--radius-sm);">
+                    <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--primary); font-weight: 700; margin-bottom: 4px;">AI Recommended Long-Term Action</div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; font-weight: 500;" id="hindsight-memory-recommendation">Select a location to construct prediction models...</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Location failure logs -->
+              <h4 style="font-family: 'Outfit', sans-serif; font-size: 0.9rem; margin: 15px 0 8px; color: var(--text-primary);">Failure History Logs</h4>
+              <div style="max-height: 160px; overflow-y: auto; border: 1px solid var(--border-glass); border-radius: var(--radius-md); background: var(--bg-card);">
+                <table class="att-table" style="font-size: 0.75rem;">
+                  <thead>
+                    <tr>
+                      <th>Complaint</th>
+                      <th>Category</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="hindsight-location-logs">
+                    <tr>
+                      <td colspan="5" style="text-align: center; color: var(--text-muted);">No location selected</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Risk Prediction & Heatmap memory -->
+            <div class="panel-card" style="border-left: 5px solid var(--info);">
+              <h3 style="font-family: 'Outfit', sans-serif;">🔮 Infrastructure Risk Predictions (Historical Memory based)</h3>
+              <p class="analytics-desc">AI agent learns from previous resolution patterns and seasonal data to generate smart safety risk predictions across active sectors.</p>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px;">
+                <div style="background: rgba(244, 63, 94, 0.05); border: 1px solid rgba(244, 63, 94, 0.15); padding: 12px; border-radius: var(--radius-md);">
+                  <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">89% probability</div>
+                  <h4 style="color: var(--danger); font-size: 0.85rem; margin: 4px 0 2px;">Sanitation Overflow</h4>
+                  <p style="font-size: 0.72rem; color: var(--text-secondary);">Block A drainage piping has reached critical cumulative stress cycles.</p>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.15); padding: 12px; border-radius: var(--radius-md);">
+                  <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">72% probability</div>
+                  <h4 style="color: var(--warning); font-size: 0.85rem; margin: 4px 0 2px;">Asphalt Cave-In</h4>
+                  <p style="font-size: 0.72rem; color: var(--text-secondary);">Main Gate access road. Accumulation of unresolved potholes water seepage.</p>
+                </div>
+                <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); padding: 12px; border-radius: var(--radius-md);">
+                  <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">18% probability</div>
+                  <h4 style="color: var(--success); font-size: 0.85rem; margin: 4px 0 2px;">Electrical Failure</h4>
+                  <p style="font-size: 0.72rem; color: var(--text-secondary);">Classroom 101. Overhauled breaker box provides optimal protection cycle.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- cascadeflow Decision Audit Logs Panel (Right) -->
+          <div class="panel-card" style="display: flex; flex-direction: column; max-height: 720px; border-left: 4px solid var(--primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h3 style="font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">📜 AI Smart Processing Logs</h3>
+              <span class="badge badge-info" id="audit-log-badge" style="font-size: 0.65rem;">Active Real-Time</span>
+            </div>
+            <p class="analytics-desc" style="margin-bottom: 15px;">Smart routing trail demonstrating cost optimization, model selection, and quality-based escalation pathways.</p>
+            
+            <div class="audit-logs-scroll" id="cascadeflow-audit-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 5px; max-height: 580px;">
+              <!-- Dynamic items inserted here -->
+            </div>
+          </div>
+
         </div>
       </div>
 
