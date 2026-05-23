@@ -246,42 +246,6 @@
       "hindsightRiskLevel": "Stable",
       "hindsightInsight": "Hindsight Memory: Location history is stable. No critical recurring trends detected.",
       "aiRecommendation": "Perform routine maintenance and standard checks."
-    },
-    {
-      "id": "hist-fac-1",
-      "title": "Major AC failure and water leak",
-      "description": "The air conditioner is completely broken and leaking water over the desks.",
-      "category": "water",
-      "locationId": "room102",
-      "reportedBy": "Alok Sen",
-      "beforeImage": null,
-      "afterImage": null,
-      "status": "Reported",
-      "priority": "Critical",
-      "createdAt": "2026-05-23T08:00:00.000Z",
-      "updatedAt": "2026-05-23T08:00:00.000Z",
-      "hindsightRiskScore": 85,
-      "hindsightRiskLevel": "Critical",
-      "hindsightInsight": "Hindsight Memory: Recurring electrical and water issues in Classroom 102. High risk of property damage.",
-      "aiRecommendation": "Immediate dispatch required. Shut off power to AC unit immediately."
-    },
-    {
-      "id": "hist-fac-2",
-      "title": "Loose door handle",
-      "description": "The main door handle is loose and might fall off soon.",
-      "category": "furniture",
-      "locationId": "room102",
-      "reportedBy": "Alok Sen",
-      "beforeImage": null,
-      "afterImage": null,
-      "status": "Reported",
-      "priority": "Low",
-      "createdAt": "2026-05-22T08:00:00.000Z",
-      "updatedAt": "2026-05-22T08:00:00.000Z",
-      "hindsightRiskScore": 10,
-      "hindsightRiskLevel": "Stable",
-      "hindsightInsight": "Hindsight Memory: First report of furniture issue in this location.",
-      "aiRecommendation": "Schedule for standard carpentry maintenance."
     }
   ],
   "marks": [

@@ -1745,8 +1745,7 @@ async function loadMaintenanceReports() {
 
       const typeIcons = { electrical: '⚡', plumbing: '🚰', furniture: '🪑', equipment: '💻', building: '🏢', infrastructure: '🏗️', academic: '📚', transport: '🚌', hygiene: '🧹', safety: '🔒', other: '📌', general: '📌' };
       const icon = typeIcons[issue.category?.toLowerCase()] || '📌';
-      const isFaculty = Object.keys(AUTHORIZED_FACULTY || {}).some(k => issue.reportedBy?.toLowerCase() === k.toLowerCase()) || issue.reportedBy?.includes('Staff') || issue.reportedBy?.includes('Faculty');
-      const reporterIcon = isFaculty ? '👨‍🏫' : issue.reportedBy?.includes('Administrator') ? '🏛️' : '🎓';
+      const reporterIcon = (issue.reportedBy?.includes('Staff') || issue.reportedBy?.includes('Faculty')) ? '👨‍🏫' : issue.reportedBy?.includes('Administrator') ? '🏛️' : '🎓';
       const roleBadgeClass = reporterIcon === '👨‍🏫' ? 'badge-info' : reporterIcon === '🏛️' ? 'badge-primary' : 'badge-warning';
       const reporterName = issue.reportedBy ? (issue.reportedBy.split(' ')[0] || 'User') : 'User';
 
@@ -2002,12 +2001,12 @@ async function loadUserReports() {
 
     // Update Stats Grid
     const totalEl = document.getElementById('user-stat-total');
-    const criticalEl = document.getElementById('user-stat-critical');
-    const othersEl = document.getElementById('user-stat-others');
+    const pendingEl = document.getElementById('user-stat-pending');
+    const resolvedEl = document.getElementById('user-stat-resolved');
     
     if (totalEl) totalEl.textContent = myIssues.length;
-    if (criticalEl) criticalEl.textContent = myIssues.filter(i => i.priority === 'Critical').length;
-    if (othersEl) othersEl.textContent = myIssues.filter(i => i.priority !== 'Critical').length;
+    if (pendingEl) pendingEl.textContent = myIssues.filter(i => i.status !== 'Completed' && i.status !== 'Verified').length;
+    if (resolvedEl) resolvedEl.textContent = myIssues.filter(i => i.status === 'Completed' || i.status === 'Verified').length;
 
     userList.innerHTML = '';
     if (myIssues.length === 0) {
@@ -2247,15 +2246,14 @@ async function updateAIConsole() {
     // 1. Fetch Outage status
     try {
       const outageRes = await fetch(`${API_BASE}/cascadeflow/outage-mode`);
-      if (!outageRes.ok) throw new Error("Server error");
-      const data = await outageRes.json();
-      localOutage = data.outageMode;
-      const toggle = document.getElementById('outage-toggle');
-      if (toggle) toggle.checked = localOutage;
+      if (outageRes.ok) {
+        const data = await outageRes.json();
+        localOutage = data.outageMode;
+        const toggle = document.getElementById('outage-toggle');
+        if (toggle) toggle.checked = localOutage;
+      }
     } catch (e) {
       console.warn("Outage status fallback to local");
-      const toggle = document.getElementById('outage-toggle');
-      if (toggle) toggle.checked = localOutage;
     }
 
     // Update outage indicator badge
@@ -2502,10 +2500,11 @@ async function toggleOutageMode(enabled) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ enabled: enabled })
     });
-    if (!res.ok) throw new Error("Server returned " + res.status);
-    const data = await res.json();
-    showToast('🔄', `cascadeflow Outage Simulation Mode: ${data.outageMode ? 'ACTIVE (Triggering fallbacks)' : 'INACTIVE (Stable)'}`);
-    setTimeout(updateAIConsole, 100);
+    if (res.ok) {
+      const data = await res.json();
+      showToast('🔄', `cascadeflow Outage Simulation Mode: ${data.outageMode ? 'ACTIVE (Triggering fallbacks)' : 'INACTIVE (Stable)'}`);
+      setTimeout(updateAIConsole, 100);
+    }
   } catch (err) {
     console.error("Outage toggle API error:", err);
     localOutage = enabled;
@@ -2564,7 +2563,7 @@ function exportMaintenanceCSV() {
     const rows = [['ID', 'Location', 'Status', 'Issue', 'Date']];
     issues.forEach(task => {
       rows.push([
-        task.id, task.locationId || 'Area', task.status, (task.title || task.description || 'No Description').replace(/,/g, ''), new Date(task.createdAt).toLocaleDateString()
+        task.id, task.locationId || 'Area', task.status, (task.title || task.description).replace(/,/g, ''), new Date(task.createdAt).toLocaleDateString()
       ]);
     });
     downloadCSV(rows, `Maintenance_Tasks_${new Date().toISOString().slice(0,10)}.csv`);
