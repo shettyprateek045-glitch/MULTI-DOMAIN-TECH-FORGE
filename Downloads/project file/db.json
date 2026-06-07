@@ -1,0 +1,579 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "admin",
+      "role": "Admin",
+      "name": "System Administrator"
+    },
+    {
+      "id": "2",
+      "username": "staff1",
+      "role": "Staff",
+      "name": "John Maintenance",
+      "specialty": "Electrical"
+    },
+    {
+      "id": "3",
+      "username": "student1",
+      "role": "Student",
+      "name": "Alice Smith"
+    }
+  ],
+  "locations": [
+    {
+      "id": "room101",
+      "name": "Classroom 101",
+      "x": 150,
+      "y": 100,
+      "importance": 5
+    },
+    {
+      "id": "room102",
+      "name": "Classroom 102",
+      "x": 450,
+      "y": 100,
+      "importance": 5
+    },
+    {
+      "id": "server_room",
+      "name": "Server Room",
+      "x": 150,
+      "y": 350,
+      "importance": 10
+    },
+    {
+      "id": "lab1",
+      "name": "Computer Lab",
+      "x": 450,
+      "y": 350,
+      "importance": 8
+    },
+    {
+      "id": "hall1",
+      "name": "Main Hall",
+      "x": 300,
+      "y": 250,
+      "importance": 4
+    },
+    {
+      "id": "playground",
+      "name": "Playground",
+      "x": 600,
+      "y": 180,
+      "importance": 4
+    },
+    {
+      "id": "main_gate",
+      "name": "Main Gate",
+      "x": 620,
+      "y": 380,
+      "importance": 9
+    },
+    {
+      "id": "cafeteria",
+      "name": "Student Cafeteria",
+      "x": 180,
+      "y": 420,
+      "importance": 7
+    }
+  ],
+  "assets": [
+    {
+      "id": "proj1",
+      "name": "Projector",
+      "locationId": "room101",
+      "type": "Electrical"
+    },
+    {
+      "id": "ac1",
+      "name": "Air Conditioner",
+      "locationId": "room102",
+      "type": "Electrical"
+    },
+    {
+      "id": "serv1",
+      "name": "Main Server",
+      "locationId": "server_room",
+      "type": "IT"
+    }
+  ],
+  "issues": [
+    {
+      "id": "hist-1",
+      "title": "Severe short circuit near server rack",
+      "description": "Massive spark and burning smell near the server rack in the Computer Lab. Needs urgent electrical repair.",
+      "category": "electricity",
+      "locationId": "lab1",
+      "reportedBy": "Staff Alok Sen",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Critical",
+      "createdAt": "2026-05-10T12:00:00.000Z",
+      "updatedAt": "2026-05-10T12:00:00.000Z"
+    },
+    {
+      "id": "hist-2",
+      "title": "Frequent voltage fluctuations",
+      "description": "Computers are repeatedly shutting down due to unstable voltage and faulty wiring.",
+      "category": "electricity",
+      "locationId": "lab1",
+      "reportedBy": "Student Alice Smith",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Started",
+      "priority": "Warning",
+      "createdAt": "2026-05-09T09:30:00.000Z",
+      "updatedAt": "2026-05-18T03:12:41.791Z"
+    },
+    {
+      "id": "hist-3",
+      "title": "Broken cooling fan and electrical hum",
+      "description": "The ceiling fan is making a loud electrical humming noise and occasionally sparking.",
+      "category": "electricity",
+      "locationId": "lab1",
+      "reportedBy": "Staff Nalini Mehta",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Warning",
+      "createdAt": "2026-05-08T14:15:00.000Z",
+      "updatedAt": "2026-05-08T14:15:00.000Z"
+    },
+    {
+      "id": "hist-4",
+      "title": "Broken Chair in Classroom 101",
+      "description": "A student desk chair has a broken leg.",
+      "category": "furniture",
+      "locationId": "room101",
+      "reportedBy": "Staff Farhan Shaikh",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Completed",
+      "priority": "Low",
+      "createdAt": "2026-04-28T11:00:00.000Z",
+      "updatedAt": "2026-04-30T16:00:00.000Z"
+    },
+    {
+      "id": "hist-6",
+      "title": "Washroom hygiene issue",
+      "description": "The boys' washroom near the cafeteria has a severe hygiene issue and clogged toilet.",
+      "category": "washroom",
+      "locationId": "cafeteria",
+      "reportedBy": "Staff Om Prakash",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Warning",
+      "createdAt": "2026-05-12T10:00:00.000Z",
+      "updatedAt": "2026-05-12T10:00:00.000Z"
+    },
+    {
+      "id": "hist-7",
+      "title": "Leaking drinking water cooler",
+      "description": "The drinking water cooler in the main hall is leaking heavily, creating a puddle.",
+      "category": "water",
+      "locationId": "hall1",
+      "reportedBy": "Staff Suresh Bhattacharya",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Completed",
+      "priority": "Critical",
+      "createdAt": "2026-05-14T07:45:00.000Z",
+      "updatedAt": "2026-05-18T03:32:43.550Z"
+    },
+    {
+      "id": "hist-8",
+      "title": "Clogged wash basin drains",
+      "description": "Cafeteria washing basins are draining extremely slowly. Overflows during lunch rush.",
+      "category": "washroom",
+      "locationId": "cafeteria",
+      "reportedBy": "Student Ananya Patel",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Warning",
+      "createdAt": "2026-05-13T13:20:00.000Z",
+      "updatedAt": "2026-05-13T13:20:00.000Z"
+    },
+    {
+      "id": "hist-batch",
+      "title": "Multiple minor electrical failures",
+      "description": "11 other small electrical occurrences reported by students in the computer lab in past weeks.",
+      "category": "electricity",
+      "locationId": "lab1",
+      "reportedBy": "Staff Alok Sen",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Warning",
+      "createdAt": "2026-05-02T10:00:00.000Z",
+      "updatedAt": "2026-05-02T10:00:00.000Z"
+    },
+    {
+      "id": "4229ee3b-b32f-4413-9dda-89d35f1f37b7",
+      "title": "broken ",
+      "description": "we cannot sit here",
+      "category": "furniture",
+      "locationId": "room101",
+      "reportedBy": "Staff Alok Sen",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Reported",
+      "priority": "Critical",
+      "createdAt": "2026-05-18T03:26:07.307Z",
+      "updatedAt": "2026-05-18T03:26:07.307Z",
+      "hindsightRiskScore": 15,
+      "hindsightRiskLevel": "Stable",
+      "hindsightInsight": "Hindsight Memory: Location history is stable. No critical recurring trends detected.",
+      "aiRecommendation": "Perform routine maintenance and standard checks."
+    },
+    {
+      "id": "5b6ffb34-26d8-4656-8c0d-8e408a6c4e9f",
+      "title": "not working",
+      "description": "not working",
+      "category": "electricity",
+      "locationId": "room102",
+      "reportedBy": "Aarav Sharma",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Completed",
+      "priority": "Critical",
+      "createdAt": "2026-05-18T03:29:54.939Z",
+      "updatedAt": "2026-05-18T03:32:00.158Z",
+      "hindsightRiskScore": 15,
+      "hindsightRiskLevel": "Stable",
+      "hindsightInsight": "Hindsight Memory: Location history is stable. No critical recurring trends detected.",
+      "aiRecommendation": "Perform routine maintenance and standard checks."
+    }
+  ],
+  "marks": [
+    {
+      "student": "Aarav Sharma",
+      "subject": "Chemistry",
+      "exam": "Unit Test 1",
+      "value": "90",
+      "createdAt": "2026-05-18T03:24:44.793Z",
+      "id": "91ccaf08-42f1-4e7a-ab34-50c8a592b1e1"
+    }
+  ],
+  "attendance": [
+    {
+      "student": "Aarav Sharma",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "late",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.035Z",
+      "id": "5c52a710-edb9-406f-aef0-dc9dd70a5e41"
+    },
+    {
+      "student": "Aditya Verma",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.035Z",
+      "id": "f005b79c-3718-42a3-a60e-7ef2c5fc513d"
+    },
+    {
+      "student": "Akash Deshmukh",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.035Z",
+      "id": "1f68fa0d-0eae-4680-9efa-06c51ef26f42"
+    },
+    {
+      "student": "Ananya Patel",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.035Z",
+      "id": "574aadee-f68b-4b6e-aef5-3c414e6bf7ae"
+    },
+    {
+      "student": "Arjun Mishra",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.035Z",
+      "id": "28a460dc-11b6-405b-a4e9-31ab975f443e"
+    },
+    {
+      "student": "Aditi Bhattacharya",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.035Z",
+      "id": "e4aab351-0ff8-473b-94d1-c57276b6b537"
+    },
+    {
+      "student": "Deepak Malhotra",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.035Z",
+      "id": "50fb6f1d-df82-48b4-960c-5410301d4c34"
+    },
+    {
+      "student": "Divya Rao",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.035Z",
+      "id": "aa03197a-52f5-4416-8e8f-53b1a21b5f4e"
+    },
+    {
+      "student": "Gaurav Anand",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.035Z",
+      "id": "d1c73c70-2449-4776-9d2f-b2e911bcffc8"
+    },
+    {
+      "student": "Harsh Venkatesh",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "f836d834-c71c-4eb0-b733-e0a6c6e79fea"
+    },
+    {
+      "student": "Ishita Jain",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "aa796c58-876b-4f6e-b498-03e469eb65a9"
+    },
+    {
+      "student": "Karan Gupta",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "a66b5833-d4d8-457c-ac63-aebafe856e12"
+    },
+    {
+      "student": "Kavya Menon",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "fcaceb09-55e7-4d26-b14f-ae11d1a16090"
+    },
+    {
+      "student": "Manish Bhat",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "4d8fa776-c379-4ea2-a926-9c763deb558d"
+    },
+    {
+      "student": "Meera Joshi",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "5cd4ccc5-7cbd-4c10-8321-8b1f2c48e24a"
+    },
+    {
+      "student": "Mohit Khanna",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "68cb2b83-91b9-410b-9c57-d0aa90ac6293"
+    },
+    {
+      "student": "Neha Reddy",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "f8050344-af7b-499d-bfbb-db811dd45239"
+    },
+    {
+      "student": "Nikhil Chauhan",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "8036ad6a-1366-471e-9e6f-c91ae3db47f6"
+    },
+    {
+      "student": "Nisha Pillai",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "63568070-765e-41ad-b808-69f3c086a9fd"
+    },
+    {
+      "student": "Parth Chatterjee",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "67d622ea-95b3-4d7f-ba99-1397e985c7f4"
+    },
+    {
+      "student": "Pooja Kulkarni",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "41ff043b-fdac-472c-8143-85028529cab4"
+    },
+    {
+      "student": "Priya Nair",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "9dc366ac-a915-477c-9275-eb99785bfd2d"
+    },
+    {
+      "student": "Rahul Das",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "cbd3289b-ace3-42e2-8bd5-d07c6a7fd76d"
+    },
+    {
+      "student": "Rhea Fernandes",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "13f1e968-92bc-4645-a8a9-cd685601b26a"
+    },
+    {
+      "student": "Ritu Saxena",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "33cdae92-ac19-4f15-89da-e604108c0612"
+    },
+    {
+      "student": "Rohan Mehta",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "c5d81c14-6962-4ce0-a060-8ce9216f0165"
+    },
+    {
+      "student": "Sandeep Kulkarni",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "fc1e3c73-7673-4c98-85da-66d7ebfef5d4"
+    },
+    {
+      "student": "Shreya Ghosh",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "4687989b-1ee3-468d-9ff9-5cadf9f81e47"
+    },
+    {
+      "student": "Siddharth Roy",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "5e3c6b85-4677-41d1-914e-ebec31bce2b1"
+    },
+    {
+      "student": "Simran Arora",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "98deae7d-3c30-41d6-b122-e082dccacd6d"
+    },
+    {
+      "student": "Sneha Iyer",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "d7cc300f-ce75-4603-a26a-9f8c32853483"
+    },
+    {
+      "student": "Swati Prasad",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "c35aa207-220e-49e6-beb8-04f72f710410"
+    },
+    {
+      "student": "Tanya Chawla",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "d1c7b77c-558f-4727-a158-82d7c3356a20"
+    },
+    {
+      "student": "Varun Kapoor",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "c6c6bac4-b754-40e1-8a9c-5c59e8bed8ae"
+    },
+    {
+      "student": "Vivek Singh",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.036Z",
+      "id": "4f7cf9c1-8f2c-4faa-a0f6-5ef106ef4139"
+    }
+  ],
+  "aiAuditLogs": []
+}
