@@ -20,11 +20,24 @@ const QR_DIR = path.join(__dirname, 'qrcodes');
 let outageMode = false;
 
 // Middleware
-app.use(compression()); // Enable Gzip compression
+app.use(compression({ level: 6, threshold: 1024 })); // Optimized Gzip compression
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
-app.use(express.static(__dirname));
-app.use('/qrcodes', express.static(QR_DIR));
+
+// Static files with aggressive caching
+app.use(express.static(__dirname, {
+  maxAge: '1d',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
+      res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+    } else if (filePath.endsWith('.png') || filePath.endsWith('.jpg') || filePath.endsWith('.jpeg') || filePath.endsWith('.webp')) {
+      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+    }
+  }
+}));
+app.use('/qrcodes', express.static(QR_DIR, { maxAge: '7d' }));
 
 // Initial Database
 const getDB = () => {
@@ -168,9 +181,15 @@ const analyzeHindsightMemory = (locationId, category, issues) => {
   else if (riskScore >= 40) riskLevel = "Medium Risk";
   else if (riskScore >= 20) riskLevel = "Low Risk";
 
+  const db = getDB();
+  const locObj = (db.locations || []).find(l => l.id === locationId);
+  const locationName = locObj ? locObj.name : locationId;
+
   // Create memory-based insights
   let memoryInsight = "";
-  if (currentCategoryCount >= 3) {
+  if (currentCategoryCount >= 5) {
+    memoryInsight = `Predictive Maintenance Alert: Recurring infrastructure failure detected in ${locationName}. Preventive replacement recommended.`;
+  } else if (currentCategoryCount >= 3) {
     memoryInsight = `Hindsight Memory: This zone is suffering from repeating issues. There have been ${currentCategoryCount} complaints about ${category} here recently.`;
   } else if (unresolvedIssues.length > 0) {
     memoryInsight = `Hindsight Memory: There are ${unresolvedIssues.length} unresolved maintenance issues active at this location.`;
@@ -386,9 +405,15 @@ app.get('/api/locations/:id/history', (req, res) => {
   res.json(history);
 });
 
-// Basic Gets
-app.get('/api/issues', (req, res) => res.json(getDB().issues));
-app.get('/api/locations', (req, res) => res.json(getDB().locations));
+// Basic Gets (with short cache for API responses to reduce redundant fetches)
+app.get('/api/issues', (req, res) => {
+  res.setHeader('Cache-Control', 'private, max-age=2');
+  res.json(getDB().issues);
+});
+app.get('/api/locations', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.json(getDB().locations);
+});
 
 // 10. Clear All Issues
 app.delete('/api/issues', (req, res) => {
@@ -416,10 +441,16 @@ app.post('/api/attendance', (req, res) => {
   const db = getDB();
   if (!db.attendance) db.attendance = [];
   const entries = req.body; // Expecting array of entries
-  db.attendance = [...(db.attendance || []), ...entries.map(e => ({ ...e, id: uuidv4(), createdAt: new Date().toISOString() }))];
+  // Preserve faculty-submitted createdAt so students see exact date/time entered
+  db.attendance = [...(db.attendance || []), ...entries.map(e => ({ 
+    ...e, 
+    id: uuidv4(), 
+    createdAt: e.createdAt || new Date().toISOString(),
+    serverReceivedAt: new Date().toISOString()
+  }))];
   saveDB(db);
   io.emit('attendanceUpdated');
-  res.status(201).json({ message: 'Attendance recorded' });
+  res.status(201).json({ message: 'Attendance recorded', count: entries.length });
 });
 
 // 13. Get Student Data

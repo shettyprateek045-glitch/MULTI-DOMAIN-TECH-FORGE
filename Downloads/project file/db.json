@@ -256,6 +256,14 @@
       "value": "90",
       "createdAt": "2026-05-18T03:24:44.793Z",
       "id": "91ccaf08-42f1-4e7a-ab34-50c8a592b1e1"
+    },
+    {
+      "student": "Aarav Sharma",
+      "subject": "Physics",
+      "exam": "Unit Test 2",
+      "value": "89",
+      "createdAt": "2026-06-15T10:50:39.147Z",
+      "id": "675a8c1a-ba51-4f13-91d8-27ceb36be3a6"
     }
   ],
   "attendance": [
@@ -332,58 +340,40 @@
       "id": "aa03197a-52f5-4416-8e8f-53b1a21b5f4e"
     },
     {
-      "student": "Gaurav Anand",
+      "student": "Gaurav Sen",
       "date": "2026-05-18",
       "subject": "Mathematics",
       "status": "present",
       "time": "09:00 AM - 10:00 AM",
       "createdAt": "2026-05-18T03:25:04.035Z",
-      "id": "d1c73c70-2449-4776-9d2f-b2e911bcffc8"
+      "id": "b9687e14-d07b-4029-a1b4-2e6ca63d8349"
     },
     {
-      "student": "Harsh Venkatesh",
+      "student": "Ishita Sharma",
+      "date": "2026-05-18",
+      "subject": "Mathematics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-05-18T03:25:04.035Z",
+      "id": "2ea7e74c-83b6-4e56-91e8-6e5ce71de8d2"
+    },
+    {
+      "student": "Karan Johar",
       "date": "2026-05-18",
       "subject": "Mathematics",
       "status": "present",
       "time": "09:00 AM - 10:00 AM",
       "createdAt": "2026-05-18T03:25:04.036Z",
-      "id": "f836d834-c71c-4eb0-b733-e0a6c6e79fea"
+      "id": "cf149c4d-b0df-4e36-963d-4c3ca8d96cd4"
     },
     {
-      "student": "Ishita Jain",
+      "student": "Kriti Sanon",
       "date": "2026-05-18",
       "subject": "Mathematics",
       "status": "present",
       "time": "09:00 AM - 10:00 AM",
       "createdAt": "2026-05-18T03:25:04.036Z",
-      "id": "aa796c58-876b-4f6e-b498-03e469eb65a9"
-    },
-    {
-      "student": "Karan Gupta",
-      "date": "2026-05-18",
-      "subject": "Mathematics",
-      "status": "present",
-      "time": "09:00 AM - 10:00 AM",
-      "createdAt": "2026-05-18T03:25:04.036Z",
-      "id": "a66b5833-d4d8-457c-ac63-aebafe856e12"
-    },
-    {
-      "student": "Kavya Menon",
-      "date": "2026-05-18",
-      "subject": "Mathematics",
-      "status": "present",
-      "time": "09:00 AM - 10:00 AM",
-      "createdAt": "2026-05-18T03:25:04.036Z",
-      "id": "fcaceb09-55e7-4d26-b14f-ae11d1a16090"
-    },
-    {
-      "student": "Manish Bhat",
-      "date": "2026-05-18",
-      "subject": "Mathematics",
-      "status": "present",
-      "time": "09:00 AM - 10:00 AM",
-      "createdAt": "2026-05-18T03:25:04.036Z",
-      "id": "4d8fa776-c379-4ea2-a926-9c763deb558d"
+      "id": "b93c834a-9e1e-450e-8efc-1e8cc3dbb1f4"
     },
     {
       "student": "Meera Joshi",
@@ -573,6 +563,336 @@
       "time": "09:00 AM - 10:00 AM",
       "createdAt": "2026-05-18T03:25:04.036Z",
       "id": "4f7cf9c1-8f2c-4faa-a0f6-5ef106ef4139"
+    },
+    {
+      "student": "Aarav Sharma",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "49d8e7ea-b054-41d8-8ec1-27ce33beba51",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Aditya Verma",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "c71d87ca-bb51-4d13-91d8-27ceb36be3a6",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Akash Deshmukh",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "e4a87cda-ba51-4f13-91d8-27ceb36be3a6",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Ananya Patel",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "675a8cda-ba51-4f13-91d8-27ceb36be3a6",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Arjun Mishra",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "8ec71d87-ca51-4f13-91d8-27ceb36be3a6",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Aditi Bhattacharya",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba51c75a-8cda-4f13-91d8-27ceb36be3a6",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Deepak Malhotra",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-50fb6f1d",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Divya Rao",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-aa03197a",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Gaurav Sen",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-b9687e14",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Ishita Sharma",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-2ea7e74c",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Karan Johar",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-cf149c4d",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Kriti Sanon",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-b93c834a",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Meera Joshi",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-5cd4ccc5",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Mohit Khanna",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-68cb2b83",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Neha Reddy",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-f8050344",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Nikhil Chauhan",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-8036ad6a",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Nisha Pillai",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-63568070",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Parth Chatterjee",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-67d622ea",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Pooja Kulkarni",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-41ff043b",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Priya Nair",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-9dc366ac",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Rahul Das",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-cbd3289b",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Rhea Fernandes",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-13f1e968",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Ritu Saxena",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-33cdae92",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Rohan Mehta",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-c5d81c14",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Sandeep Kulkarni",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-fc1e3c73",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Shreya Ghosh",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-4687989b",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Siddharth Roy",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-5e3c6b85",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Simran Arora",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-98deae7d",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Sneha Iyer",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-d7cc300f",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Swati Prasad",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-c35aa207",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Tanya Chawla",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-d1c7b77c",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Varun Kapoor",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "ba514f13-91d8-27ceb36be3a6-c6c6bac4",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Vivek Singh",
+      "date": "2026-06-15",
+      "subject": "Physics",
+      "status": "present",
+      "time": "09:00 AM - 10:00 AM",
+      "createdAt": "2026-06-15T10:50:57.000Z",
+      "id": "c35c3a67-6656-4f66-82fe-060fbd1a4c7c",
+      "serverReceivedAt": "2026-06-15T10:50:57.122Z"
     }
   ],
   "aiAuditLogs": []
