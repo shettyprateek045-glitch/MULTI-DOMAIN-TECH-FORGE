@@ -12,10 +12,7 @@
   <!-- Preload Critical Fonts -->
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
-  
-  <!-- Preload Critical Images for LCP -->
-  <link rel="preload" as="image" href="campus_map.png" fetchpriority="high">
-  <link rel="preload" as="image" href="floorplan.png">
+
   
   <link rel="stylesheet" href="style1.css" />
   
@@ -416,9 +413,7 @@
                   <option value="electricity">⚡ Electricity & Fan Monitoring</option>
                   <option value="cctv">📷 CCTV & Security Monitoring</option>
                   <option value="playground">⚽ Playground Maintenance</option>
-                  <option value="attendance_infra">✅ Smart Attendance Infra</option>
                   <option value="computer_lab">💻 Computer Lab Status</option>
-                  <option value="bus">🚌 School Bus Monitoring</option>
                   <option value="fire_safety">🧯 Fire Safety Equipment</option>
                   <option value="furniture">🪑 Broken Furniture Reporting</option>
                   <option value="other">📌 Other</option>
@@ -436,7 +431,7 @@
 
           </form>
         </div>
-        <div class="panel-card" style="margin-top: 20px;">
+        <div class="panel-card" id="my-reports-verification-card" style="margin-top: 20px;">
           <h3>📋 My Reports & Verifications</h3>
           <p class="analytics-desc">Track and verify the resolution of reports you've submitted.</p>
           <ul class="panel-list" id="user-reports-list" style="max-height: 300px; overflow-y: auto;">
@@ -490,9 +485,7 @@
                   <option value="electricity">⚡ Electricity & Fan Monitoring</option>
                   <option value="cctv">📷 CCTV & Security Monitoring</option>
                   <option value="playground">⚽ Playground Maintenance</option>
-                  <option value="attendance_infra">✅ Smart Attendance Infra</option>
                   <option value="computer_lab">💻 Computer Lab Status</option>
-                  <option value="bus">🚌 School Bus Monitoring</option>
                   <option value="fire_safety">🧯 Fire Safety Equipment</option>
                   <option value="furniture">🪑 Broken Furniture Reporting</option>
                   <option value="other">📌 Other</option>
@@ -564,7 +557,7 @@
             </div>
             <span class="badge badge-info">AI ACTIVE</span>
           </div>
-          <div class="map-viewport" style="background: url('campus_map.png') no-repeat center center; background-size: cover; border: 2px solid var(--primary-light);">
+          <div class="map-viewport" style="background: url('campus_map.webp') no-repeat center center; background-size: cover; border: 2px solid var(--primary-light);">
             <canvas id="digital-twin-canvas" style="background: transparent;"></canvas>
             <div class="map-overlay-labels">
               <span class="map-label" style="top:20%; left:20%;">PLAYGROUND</span>
@@ -950,6 +943,133 @@
         </div>
       </div>
 
+      <!-- ====== TAB: Marks Entry (Faculty Only) ====== -->
+      <div class="tab-panel" id="panel-marks-entry">
+        <div class="panel-card">
+          <h3>📝 Student Marks Entry</h3>
+          <p class="analytics-desc">Enter marks for individual students based on examinations.</p>
+          <form class="report-form" id="marks-entry-form" onsubmit="submitMarks(event)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+              <div class="form-group-mini" style="grid-column: span 2;">
+                <label style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-bottom: 8px; display: block;">Select Student Name</label>
+                <div class="custom-dropdown" id="dropdown-marks-student">
+                  <div class="dropdown-header" onclick="toggleCustomDropdown('dropdown-marks-student')">
+                    <input type="text" placeholder="Choose Student" readonly class="dropdown-selected" id="display-marks-student">
+                    <input type="hidden" id="marks-student-name" required>
+                    <span class="dropdown-arrow">▼</span>
+                  </div>
+                  <div class="dropdown-list-container">
+                    <input type="text" class="dropdown-search" placeholder="Search student..." oninput="filterDropdown('dropdown-marks-student', this.value)">
+                    <ul class="dropdown-list" id="list-marks-student">
+                      <!-- Populated by JS -->
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group-mini">
+                <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Select Subject</label>
+                <div class="custom-dropdown" id="dropdown-marks-subject">
+                  <div class="dropdown-header" onclick="toggleCustomDropdown('dropdown-marks-subject')">
+                    <input type="text" placeholder="Choose Subject" readonly class="dropdown-selected" id="display-marks-subject">
+                    <input type="hidden" id="marks-subject" required>
+                    <span class="dropdown-arrow">▼</span>
+                  </div>
+                  <div class="dropdown-list-container">
+                    <input type="text" class="dropdown-search" placeholder="Search subject..." oninput="filterDropdown('dropdown-marks-subject', this.value)">
+                    <ul class="dropdown-list" id="list-marks-subject">
+                      <li onclick="selectDropdownOption('dropdown-marks-subject', 'Mathematics', 'Mathematics')">Mathematics</li>
+                      <li onclick="selectDropdownOption('dropdown-marks-subject', 'Physics', 'Physics')">Physics</li>
+                      <li onclick="selectDropdownOption('dropdown-marks-subject', 'Chemistry', 'Chemistry')">Chemistry</li>
+                      <li onclick="selectDropdownOption('dropdown-marks-subject', 'English', 'English')">English</li>
+                      <li onclick="selectDropdownOption('dropdown-marks-subject', 'Computer Science', 'Computer Science')">Computer Science</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+              <div class="form-group-mini" style="grid-column: span 2; margin-top: 5px;">
+                <label style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-bottom: 8px; display: block;">Exam / Assessment</label>
+                <div class="custom-dropdown" id="dropdown-marks-exam">
+                  <div class="dropdown-header" onclick="toggleCustomDropdown('dropdown-marks-exam')">
+                    <input type="text" placeholder="Choose Unit Test" readonly class="dropdown-selected" id="display-marks-exam">
+                    <input type="hidden" id="marks-exam-type" required>
+                    <span class="dropdown-arrow">▼</span>
+                  </div>
+                  <div class="dropdown-list-container">
+                    <input type="text" class="dropdown-search" placeholder="Search test..." oninput="filterDropdown('dropdown-marks-exam', this.value)">
+                    <ul class="dropdown-list" id="list-marks-exam">
+                      <li onclick="selectDropdownOption('dropdown-marks-exam', 'Unit Test 1', 'Unit Test 1')">Unit Test 1</li>
+                      <li onclick="selectDropdownOption('dropdown-marks-exam', 'Unit Test 2', 'Unit Test 2')">Unit Test 2</li>
+                      <li onclick="selectDropdownOption('dropdown-marks-exam', 'Unit Test 3', 'Unit Test 3')">Unit Test 3</li>
+                      <li onclick="selectDropdownOption('dropdown-marks-exam', 'Mid-Term', 'Mid-Term')">Mid-Term</li>
+                      <li onclick="selectDropdownOption('dropdown-marks-exam', 'Final', 'Final')">Final</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group-mini">
+                <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Marks Obtained</label>
+                <input type="number" id="marks-value" min="0" max="100" placeholder="e.g., 85" required />
+              </div>
+            </div>
+            <button type="submit" class="submit-btn">💾 Save Marks</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ====== TAB: Attendance Entry (Faculty Only) ====== -->
+      <div class="tab-panel" id="panel-attendance-entry">
+        <div class="panel-card">
+          <h3>✅ Student Attendance Entry</h3>
+          <p class="analytics-desc">Mark student presence for the daily log.</p>
+          <form class="report-form" id="attendance-entry-form" onsubmit="submitStudentAttendance(event)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+              <div class="form-group-mini">
+                <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Date</label>
+                <input type="date" id="att-date" required />
+              </div>
+              <div class="form-group-mini">
+                <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Period / Time</label>
+                <select id="att-period" required>
+                  <option value="09:00 AM - 10:00 AM">1st Period (09-10 AM)</option>
+                  <option value="10:00 AM - 11:00 AM">2nd Period (10-11 AM)</option>
+                  <option value="11:00 AM - 12:00 PM">3rd Period (11-12 AM)</option>
+                  <option value="12:00 PM - 01:00 PM">Lunch Break (12-01 PM)</option>
+                  <option value="01:00 PM - 02:00 PM">4th Period (01-02 PM)</option>
+                  <option value="02:00 PM - 03:00 PM">5th Period (02-03 PM)</option>
+                  <option value="03:00 PM - 04:00 PM">6th Period (03-04 PM)</option>
+                </select>
+              </div>
+              <div class="form-group-mini">
+                <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Subject</label>
+                <select id="att-subject" required>
+                  <option value="Mathematics">Mathematics</option>
+                  <option value="Physics">Physics</option>
+                  <option value="Chemistry">Chemistry</option>
+                  <option value="English">English</option>
+                  <option value="Computer Science">Computer Science</option>
+                </select>
+              </div>
+            </div>
+            <div class="attendance-table-card" style="margin-top: 10px; max-height: 400px; overflow-y: auto;">
+              <table class="att-table">
+                <thead>
+                  <tr>
+                    <th>Student Name</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="att-entry-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+            <button type="submit" class="submit-btn" style="margin-top: 15px;">💾 Submit Attendance</button>
+          </form>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -957,133 +1077,6 @@
   <div class="toast" id="toast">
     <span id="toast-icon">✅</span>
     <span id="toast-message">Action completed!</span>
-  </div>
-
-  <!-- ====== TAB: Marks Entry (Faculty Only) ====== -->
-  <div class="tab-panel" id="panel-marks-entry">
-    <div class="panel-card">
-      <h3>📝 Student Marks Entry</h3>
-      <p class="analytics-desc">Enter marks for individual students based on examinations.</p>
-      <form class="report-form" id="marks-entry-form" onsubmit="submitMarks(event)">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div class="form-group-mini" style="grid-column: span 2;">
-            <label style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-bottom: 8px; display: block;">Select Student Name</label>
-            <div class="custom-dropdown" id="dropdown-marks-student">
-              <div class="dropdown-header" onclick="toggleCustomDropdown('dropdown-marks-student')">
-                <input type="text" placeholder="Choose Student" readonly class="dropdown-selected" id="display-marks-student">
-                <input type="hidden" id="marks-student-name" required>
-                <span class="dropdown-arrow">▼</span>
-              </div>
-              <div class="dropdown-list-container">
-                <input type="text" class="dropdown-search" placeholder="Search student..." oninput="filterDropdown('dropdown-marks-student', this.value)">
-                <ul class="dropdown-list" id="list-marks-student">
-                  <!-- Populated by JS -->
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="form-group-mini">
-            <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Select Subject</label>
-            <div class="custom-dropdown" id="dropdown-marks-subject">
-              <div class="dropdown-header" onclick="toggleCustomDropdown('dropdown-marks-subject')">
-                <input type="text" placeholder="Choose Subject" readonly class="dropdown-selected" id="display-marks-subject">
-                <input type="hidden" id="marks-subject" required>
-                <span class="dropdown-arrow">▼</span>
-              </div>
-              <div class="dropdown-list-container">
-                <input type="text" class="dropdown-search" placeholder="Search subject..." oninput="filterDropdown('dropdown-marks-subject', this.value)">
-                <ul class="dropdown-list" id="list-marks-subject">
-                  <li onclick="selectDropdownOption('dropdown-marks-subject', 'Mathematics', 'Mathematics')">Mathematics</li>
-                  <li onclick="selectDropdownOption('dropdown-marks-subject', 'Physics', 'Physics')">Physics</li>
-                  <li onclick="selectDropdownOption('dropdown-marks-subject', 'Chemistry', 'Chemistry')">Chemistry</li>
-                  <li onclick="selectDropdownOption('dropdown-marks-subject', 'English', 'English')">English</li>
-                  <li onclick="selectDropdownOption('dropdown-marks-subject', 'Computer Science', 'Computer Science')">Computer Science</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div class="form-group-mini" style="grid-column: span 2; margin-top: 5px;">
-            <label style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-bottom: 8px; display: block;">Exam / Assessment</label>
-            <div class="custom-dropdown" id="dropdown-marks-exam">
-              <div class="dropdown-header" onclick="toggleCustomDropdown('dropdown-marks-exam')">
-                <input type="text" placeholder="Choose Unit Test" readonly class="dropdown-selected" id="display-marks-exam">
-                <input type="hidden" id="marks-exam-type" required>
-                <span class="dropdown-arrow">▼</span>
-              </div>
-              <div class="dropdown-list-container">
-                <input type="text" class="dropdown-search" placeholder="Search test..." oninput="filterDropdown('dropdown-marks-exam', this.value)">
-                <ul class="dropdown-list" id="list-marks-exam">
-                  <li onclick="selectDropdownOption('dropdown-marks-exam', 'Unit Test 1', 'Unit Test 1')">Unit Test 1</li>
-                  <li onclick="selectDropdownOption('dropdown-marks-exam', 'Unit Test 2', 'Unit Test 2')">Unit Test 2</li>
-                  <li onclick="selectDropdownOption('dropdown-marks-exam', 'Unit Test 3', 'Unit Test 3')">Unit Test 3</li>
-                  <li onclick="selectDropdownOption('dropdown-marks-exam', 'Mid-Term', 'Mid-Term')">Mid-Term</li>
-                  <li onclick="selectDropdownOption('dropdown-marks-exam', 'Final', 'Final')">Final</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="form-group-mini">
-            <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Marks Obtained</label>
-            <input type="number" id="marks-value" min="0" max="100" placeholder="e.g., 85" required />
-          </div>
-        </div>
-        <button type="submit" class="submit-btn">💾 Save Marks</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ====== TAB: Attendance Entry (Faculty Only) ====== -->
-  <div class="tab-panel" id="panel-attendance-entry">
-    <div class="panel-card">
-      <h3>✅ Student Attendance Entry</h3>
-      <p class="analytics-desc">Mark student presence for the daily log.</p>
-      <form class="report-form" id="attendance-entry-form" onsubmit="submitStudentAttendance(event)">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div class="form-group-mini">
-            <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Date</label>
-            <input type="date" id="att-date" required />
-          </div>
-          <div class="form-group-mini">
-            <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Period / Time</label>
-            <select id="att-period" required>
-              <option value="09:00 AM - 10:00 AM">1st Period (09-10 AM)</option>
-              <option value="10:00 AM - 11:00 AM">2nd Period (10-11 AM)</option>
-              <option value="11:00 AM - 12:00 PM">3rd Period (11-12 AM)</option>
-              <option value="12:00 PM - 01:00 PM">Lunch Break (12-01 PM)</option>
-              <option value="01:00 PM - 02:00 PM">4th Period (01-02 PM)</option>
-              <option value="02:00 PM - 03:00 PM">5th Period (02-03 PM)</option>
-              <option value="03:00 PM - 04:00 PM">6th Period (03-04 PM)</option>
-            </select>
-          </div>
-          <div class="form-group-mini">
-            <label style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Subject</label>
-            <select id="att-subject" required>
-              <option value="Mathematics">Mathematics</option>
-              <option value="Physics">Physics</option>
-              <option value="Chemistry">Chemistry</option>
-              <option value="English">English</option>
-              <option value="Computer Science">Computer Science</option>
-            </select>
-          </div>
-        </div>
-        <div class="attendance-table-card" style="margin-top: 10px; max-height: 400px; overflow-y: auto;">
-          <table class="att-table">
-            <thead>
-              <tr>
-                <th>Student Name</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="att-entry-body">
-              <!-- Populated by JS -->
-            </tbody>
-          </table>
-        </div>
-        <button type="submit" class="submit-btn" style="margin-top: 15px;">💾 Submit Attendance</button>
-      </form>
-    </div>
   </div>
 
   <!-- Chatbot UI -->

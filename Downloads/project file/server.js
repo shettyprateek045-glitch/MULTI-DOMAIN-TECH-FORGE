@@ -39,10 +39,33 @@ app.use(express.static(__dirname, {
 }));
 app.use('/qrcodes', express.static(QR_DIR, { maxAge: '7d' }));
 
-// Initial Database
+// Root redirect to index1.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index1.html'));
+});
+
+// Initial Database with in-memory caching for faster API retrieval
+let dbCache = null;
 const getDB = () => {
+  if (dbCache) return dbCache;
   if (!fs.existsSync(DB_FILE)) {
-    return { 
+    dbCache = { 
+      users: [], 
+      locations: [], 
+      assets: [], 
+      issues: [], 
+      marks: [], 
+      attendance: [],
+      aiAuditLogs: []
+    };
+    return dbCache;
+  }
+  try {
+    const raw = fs.readFileSync(DB_FILE, 'utf8');
+    dbCache = JSON.parse(raw);
+  } catch (err) {
+    console.error("Error reading database file:", err);
+    dbCache = { 
       users: [], 
       locations: [], 
       assets: [], 
@@ -52,11 +75,17 @@ const getDB = () => {
       aiAuditLogs: []
     };
   }
-  const db = JSON.parse(fs.readFileSync(DB_FILE));
-  if (!db.aiAuditLogs) db.aiAuditLogs = [];
-  return db;
+  if (!dbCache.aiAuditLogs) dbCache.aiAuditLogs = [];
+  return dbCache;
 };
-const saveDB = (data) => fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+const saveDB = (data) => {
+  dbCache = data;
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error("Error writing database file:", err);
+  }
+};
 
 // Generate QR Codes for all locations
 const generateQRs = async () => {

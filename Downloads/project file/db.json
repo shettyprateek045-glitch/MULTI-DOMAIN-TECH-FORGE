@@ -246,6 +246,24 @@
       "hindsightRiskLevel": "Stable",
       "hindsightInsight": "Hindsight Memory: Location history is stable. No critical recurring trends detected.",
       "aiRecommendation": "Perform routine maintenance and standard checks."
+    },
+    {
+      "id": "5b94bbbc-1b5c-4b90-963a-926a9164146f",
+      "title": "hi",
+      "description": "fbfh",
+      "category": "cctv",
+      "locationId": "lab1",
+      "reportedBy": "Staff Alok Sen",
+      "beforeImage": null,
+      "afterImage": null,
+      "status": "Completed",
+      "priority": "Low",
+      "createdAt": "2026-06-15T11:43:19.279Z",
+      "updatedAt": "2026-06-15T11:45:12.061Z",
+      "hindsightRiskScore": 65,
+      "hindsightRiskLevel": "Medium Risk",
+      "hindsightInsight": "Hindsight Memory: There are 4 unresolved maintenance issues active at this location.",
+      "aiRecommendation": "SITE AUDIT REQUIRED: High quantity of concurrent active maintenance issues. Suggest full-site facility survey and scheduling comprehensive cleanup."
     }
   ],
   "marks": [
@@ -264,6 +282,14 @@
       "value": "89",
       "createdAt": "2026-06-15T10:50:39.147Z",
       "id": "675a8c1a-ba51-4f13-91d8-27ceb36be3a6"
+    },
+    {
+      "student": "Aarav Sharma",
+      "subject": "English",
+      "exam": "Unit Test 3",
+      "value": "100",
+      "createdAt": "2026-06-15T11:38:12.437Z",
+      "id": "ffeb45b9-c91c-4560-af5b-75fc25a7c4da"
     }
   ],
   "attendance": [
@@ -893,7 +919,392 @@
       "createdAt": "2026-06-15T10:50:57.000Z",
       "id": "c35c3a67-6656-4f66-82fe-060fbd1a4c7c",
       "serverReceivedAt": "2026-06-15T10:50:57.122Z"
+    },
+    {
+      "student": "Alice Smith",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "fb189620-08e5-4523-9524-6914c147c605",
+      "serverReceivedAt": "2026-06-15T11:38:42.445Z"
+    },
+    {
+      "student": "Aarav Sharma",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "absent",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "b6f389a0-623b-45ad-825a-442ad28305f0",
+      "serverReceivedAt": "2026-06-15T11:38:42.445Z"
+    },
+    {
+      "student": "Aditya Verma",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "99a8eb3a-51ca-4bcf-9c53-9a06dd1b2ca7",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Akash Deshmukh",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "8d7a6b80-4e8b-42d6-aa73-15f2fb519da1",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Ananya Patel",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "77b44320-8bd0-493b-ac53-d56e76354762",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Arjun Mishra",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "a2a8e115-7465-42a3-b1a8-25fd4bd27900",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Aditi Bhattacharya",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "b011a2cf-dfed-4b93-ae83-adaeb8918d6d",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Deepak Malhotra",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "d8b09604-d9db-4284-bb68-e411e34712f7",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Divya Rao",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "37819dc0-0d54-488e-8fdb-70220452f57c",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Gaurav Anand",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "5a569e56-055b-43e0-95ec-97b0e88c1e19",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Harsh Venkatesh",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "d981abc9-c626-4631-bf07-fb517a6d88fc",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Ishita Jain",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "d4b2c352-f61a-4a6f-8156-cf46e5683eb8",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Karan Gupta",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "7dbafc36-d1ec-4e2f-a65e-e9347a421700",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Kavya Menon",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "2af8f6c0-e4b7-40be-8de2-bab103ad783d",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Manish Bhat",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "b6df1555-7e16-4f21-ac5c-fb06f030e87d",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Meera Joshi",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "91500788-6c21-4b19-9fff-4dd73b7c7d5a",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Mohit Khanna",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "37a9522b-e07d-49c6-b402-60e07fc68c7d",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Neha Reddy",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "9a24b610-e9ca-489e-88eb-c8f3c38f8e4b",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Nikhil Chauhan",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "3b68f5c5-9065-4881-ad70-1a66106fd491",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Nisha Pillai",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "83a4fecb-272a-4b82-a855-3a88612154c4",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Parth Chatterjee",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "301656c5-8191-46cb-bc82-7de40a5faa13",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Pooja Kulkarni",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "c35248fc-4bfb-4c51-9947-4352a1cfd6fb",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Priya Nair",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "8727c8dc-1325-40b6-9386-f041b9f7937f",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Rahul Das",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "0a684161-7cf8-44d4-92a3-d2af365a2fb4",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Rhea Fernandes",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "fd3574bf-6883-44a9-8d7b-435898739dd8",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Ritu Saxena",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "23fde7e3-0671-4368-abaa-b54f50d65796",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Rohan Mehta",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "ae5a04ed-d37a-4133-b99c-2c035eeedc1e",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Sandeep Kulkarni",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "feacf61b-4e19-4eb5-a8a7-c4802e5df2fc",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Shreya Ghosh",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "d60ea2e8-4305-45c8-ba81-caceaa93bcca",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Siddharth Roy",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "c36330a4-7e2c-4948-a767-44e9c52e6741",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Simran Arora",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "c1afad2e-7fd1-438b-9e66-8b49cca703b9",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Sneha Iyer",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "dd07edfc-bed5-4786-bf6a-e5b65d36f93c",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Swati Prasad",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "d0a9d3b7-2c80-483f-b6f2-8dbeef255fe9",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Tanya Chawla",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "64b09ffc-1742-4779-865a-5502881360df",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Varun Kapoor",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "60945583-fa5e-4604-96e3-4ae69646ed94",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
+    },
+    {
+      "student": "Vivek Singh",
+      "date": "2026-06-15",
+      "subject": "English",
+      "status": "present",
+      "time": "02:00 PM - 03:00 PM",
+      "createdAt": "2026-06-15T11:38:42.000Z",
+      "id": "a66a29a0-186a-42e8-84f7-690e4ccc52ee",
+      "serverReceivedAt": "2026-06-15T11:38:42.446Z"
     }
   ],
-  "aiAuditLogs": []
+  "aiAuditLogs": [
+    {
+      "id": "75190581-6ae7-4b5f-9024-555f0adf8935",
+      "timestamp": "2026-06-15T11:43:19.280Z",
+      "inputLength": 4,
+      "category": "cctv",
+      "hasImage": false,
+      "selectedModel": "Llama 3 8B (Lightweight)",
+      "routingReason": "Simple category classification, routed to lightweight cheap model to optimize costs.",
+      "latencyMs": 73,
+      "costUsd": 0.00001,
+      "status": "Success"
+    },
+    {
+      "id": "43e88e69-6bc5-4df7-af8a-e8fe655e5bf5",
+      "timestamp": "2026-06-17T15:57:10.773Z",
+      "inputLength": 51,
+      "category": "electricity",
+      "hasImage": false,
+      "selectedModel": "Llama 3 8B (Lightweight)",
+      "routingReason": "Simple category classification, routed to lightweight cheap model to optimize costs.",
+      "latencyMs": 55,
+      "costUsd": 0.00001,
+      "status": "Success"
+    }
+  ]
 }

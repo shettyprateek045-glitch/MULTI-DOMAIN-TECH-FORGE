@@ -669,11 +669,26 @@ async function loadStudentAttendance(name) {
       const needed   = Math.max(0, 6 - sortedRealLogs.length);
       const allLogs  = [...sortedRealLogs, ...demoLogs.slice(0, needed)].slice(0, 10);
       
+      const seenStorageKey = 'seen_attendance_' + name;
+      let seenAttendanceStr = localStorage.getItem(seenStorageKey);
+      let isFirstTime = (seenAttendanceStr === null);
+      let seenAttendance = isFirstTime ? [] : JSON.parse(seenAttendanceStr);
+      let newSeenKeys = [];
+
       const fragment = document.createDocumentFragment();
       allLogs.forEach(row => {
-        // "NEW" if entry was created within last 5 minutes
-        const isNew = row.createdAt && (new Date() - new Date(row.createdAt) < 300000);
+        const key = row.id || `${row.date}-${row.subject}-${row.status}-${row.student}`;
+        let isNew = false;
+        if (row.createdAt || row.id) {
+          if (isFirstTime) {
+            newSeenKeys.push(key);
+          } else {
+            isNew = !seenAttendance.includes(key);
+          }
+        }
+
         const tr = document.createElement('tr');
+        tr.setAttribute('data-key', key);
         if (isNew) {
           tr.style.cssText = 'background:rgba(99,102,241,0.08); border-left:3px solid var(--primary);';
         }
@@ -718,6 +733,26 @@ async function loadStudentAttendance(name) {
       
       tbody.innerHTML = '';
       tbody.appendChild(fragment);
+
+      if (isFirstTime && newSeenKeys.length > 0) {
+        localStorage.setItem(seenStorageKey, JSON.stringify(newSeenKeys));
+      }
+
+      // If active, mark as seen
+      const isTabActive = document.getElementById('panel-attendance') && document.getElementById('panel-attendance').classList.contains('active');
+      if (isTabActive && !isFirstTime) {
+        let updated = false;
+        allLogs.forEach(row => {
+          const key = row.id || `${row.date}-${row.subject}-${row.status}-${row.student}`;
+          if ((row.createdAt || row.id) && !seenAttendance.includes(key)) {
+            seenAttendance.push(key);
+            updated = true;
+          }
+        });
+        if (updated) {
+          localStorage.setItem(seenStorageKey, JSON.stringify(seenAttendance));
+        }
+      }
     }
     
     // Also load marks
@@ -743,6 +778,12 @@ async function loadStudentMarks(name) {
   const marksList = document.getElementById('exam-results-list');
   if (!marksList) return;
 
+  const seenStorageKey = 'seen_marks_' + name;
+  let seenMarksStr = localStorage.getItem(seenStorageKey);
+  let isFirstTime = (seenMarksStr === null);
+  let seenMarks = isFirstTime ? [] : JSON.parse(seenMarksStr);
+  let newSeenKeys = [];
+
   try {
     const res = await fetch(`${API_BASE}/students/${name}/marks`);
     let marks = res.ok ? await res.json() : [];
@@ -766,6 +807,18 @@ async function loadStudentMarks(name) {
       li.className = 'panel-list-item'; 
       li.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.05);';
       
+      const key = m.id || `${m.subject}-${m.exam}-${m.value}-${m.student}-${m.createdAt || ''}`;
+      li.setAttribute('data-key', key);
+
+      let isNew = false;
+      if (m.createdAt || m.id) {
+        if (isFirstTime) {
+          newSeenKeys.push(key);
+        } else {
+          isNew = !seenMarks.includes(key);
+        }
+      }
+
       // Format entered-on date & time
       let enteredOn = '';
       if (m.createdAt) {
@@ -775,16 +828,18 @@ async function loadStudentMarks(name) {
         enteredOn = `${dateStr}, ${timeStr}`;
       }
       
-      const isNew = m.createdAt && (new Date() - new Date(m.createdAt) < 300000); // 5-min NEW badge
       const newBadge = isNew ? `<span class="badge badge-info" style="font-size:0.6rem; margin-left:6px; animation: badgePulse 2s infinite;">NEW</span>` : '';
-      
+      if (isNew) {
+        li.style.cssText += 'background:rgba(99,102,241,0.06); border-left:3px solid var(--primary); padding-left:10px; border-radius:var(--radius-sm);';
+      }
+
       li.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:2px;">
           <span style="font-weight:700; color:var(--primary);">${m.subject}${newBadge}</span>
           <span style="font-size:0.75rem; color:var(--text-muted);">${m.exam}</span>
           ${enteredOn ? `<span style="font-size:0.68rem; color:var(--text-muted); display:flex; align-items:center; gap:3px; margin-top:2px;"><span>🕐</span> Entered: ${enteredOn}</span>` : ''}
         </div>
-        <div style="text-align:right;">
+        <div style="text-align:right; padding-right:10px;">
           <span class="badge badge-success" style="font-size:0.9rem;">${m.value} / 100</span>
           ${getGradeBadge(Number(m.value))}
         </div>
@@ -793,6 +848,26 @@ async function loadStudentMarks(name) {
     });
     marksList.innerHTML = '';
     marksList.appendChild(fragment);
+
+    if (isFirstTime && newSeenKeys.length > 0) {
+      localStorage.setItem(seenStorageKey, JSON.stringify(newSeenKeys));
+    }
+
+    // If exams tab is active, mark all as seen
+    const isTabActive = document.getElementById('panel-exams') && document.getElementById('panel-exams').classList.contains('active');
+    if (isTabActive && !isFirstTime) {
+      let updated = false;
+      allMarks.forEach(m => {
+        const key = m.id || `${m.subject}-${m.exam}-${m.value}-${m.student}-${m.createdAt || ''}`;
+        if (!seenMarks.includes(key)) {
+          seenMarks.push(key);
+          updated = true;
+        }
+      });
+      if (updated) {
+        localStorage.setItem(seenStorageKey, JSON.stringify(seenMarks));
+      }
+    }
   } catch (err) {
     console.error('Load marks error:', err);
     // Try to load just offline if fetch failed
@@ -804,6 +879,19 @@ async function loadStudentMarks(name) {
          const li = document.createElement('li');
          li.className = 'panel-list-item';
          li.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(0,0,0,0.05);';
+         
+         const key = m.id || `${m.subject}-${m.exam}-${m.value}-${m.student}-${m.createdAt || ''}`;
+         li.setAttribute('data-key', key);
+
+         let isNew = false;
+         if (m.createdAt || m.id) {
+           if (isFirstTime) {
+             newSeenKeys.push(key);
+           } else {
+             isNew = !seenMarks.includes(key);
+           }
+         }
+
          let enteredOn = '';
          if (m.createdAt) {
            const d = new Date(m.createdAt);
@@ -811,21 +899,29 @@ async function loadStudentMarks(name) {
            const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
            enteredOn = `${dateStr}, ${timeStr}`;
          }
-         const isNew = m.createdAt && (new Date() - new Date(m.createdAt) < 300000);
+         
          const newBadge = isNew ? `<span class="badge badge-info" style="font-size:0.6rem; margin-left:6px; animation: badgePulse 2s infinite;">NEW</span>` : '';
+         if (isNew) {
+           li.style.cssText += 'background:rgba(99,102,241,0.06); border-left:3px solid var(--primary); padding-left:10px; border-radius:var(--radius-sm);';
+         }
+
          li.innerHTML = `
            <div style="display:flex; flex-direction:column; gap:2px;">
              <span style="font-weight:700; color:var(--primary);">${m.subject}${newBadge}</span>
              <span style="font-size:0.75rem; color:var(--text-muted);">${m.exam}</span>
              ${enteredOn ? `<span style="font-size:0.68rem; color:var(--text-muted); display:flex; align-items:center; gap:3px; margin-top:2px;"><span>🕐</span> Entered: ${enteredOn}</span>` : ''}
            </div>
-           <div style="text-align:right;">
+           <div style="text-align:right; padding-right:10px;">
              <span class="badge badge-success" style="font-size:0.9rem;">${m.value} / 100</span>
              ${getGradeBadge(Number(m.value))}
            </div>
          `;
          marksList.appendChild(li);
        });
+       
+       if (isFirstTime && newSeenKeys.length > 0) {
+         localStorage.setItem(seenStorageKey, JSON.stringify(newSeenKeys));
+       }
     } else {
        marksList.innerHTML = '<li style="text-align:center; color: var(--text-muted); padding: 20px 0;">No results posted yet.</li>';
     }
@@ -895,6 +991,53 @@ function switchTab(tabName) {
   const targetPanel = document.getElementById('panel-' + tabName);
   if (targetPanel) {
     targetPanel.classList.add('active');
+  }
+
+  // Mark as seen on tab activation for students
+  if (currentRole === 'student') {
+    if (tabName === 'attendance') {
+      const seenStorageKey = 'seen_attendance_' + currentUsername;
+      const seenAttendanceStr = localStorage.getItem(seenStorageKey);
+      if (seenAttendanceStr !== null) {
+        const seenAttendance = JSON.parse(seenAttendanceStr);
+        const tbody = document.getElementById('att-log-body');
+        if (tbody) {
+          const rows = tbody.querySelectorAll('tr');
+          let updated = false;
+          rows.forEach(tr => {
+            const key = tr.getAttribute('data-key');
+            if (key && !seenAttendance.includes(key)) {
+              seenAttendance.push(key);
+              updated = true;
+            }
+          });
+          if (updated) {
+            localStorage.setItem(seenStorageKey, JSON.stringify(seenAttendance));
+          }
+        }
+      }
+    } else if (tabName === 'exams') {
+      const seenStorageKey = 'seen_marks_' + currentUsername;
+      const seenMarksStr = localStorage.getItem(seenStorageKey);
+      if (seenMarksStr !== null) {
+        const seenMarks = JSON.parse(seenMarksStr);
+        const marksList = document.getElementById('exam-results-list');
+        if (marksList) {
+          const items = marksList.querySelectorAll('li');
+          let updated = false;
+          items.forEach(li => {
+            const key = li.getAttribute('data-key');
+            if (key && !seenMarks.includes(key)) {
+              seenMarks.push(key);
+              updated = true;
+            }
+          });
+          if (updated) {
+            localStorage.setItem(seenStorageKey, JSON.stringify(seenMarks));
+          }
+        }
+      }
+    }
   }
 }
 
@@ -1889,7 +2032,7 @@ function ensureFloorplanLoaded() {
   if (floorplanImage) return;
   floorplanImage = new Image();
   floorplanImage.onload = () => { isFloorplanLoaded = true; };
-  floorplanImage.src = 'floorplan.png';
+  floorplanImage.src = 'floorplan.webp';
 }
 
 async function renderDigitalTwin() {

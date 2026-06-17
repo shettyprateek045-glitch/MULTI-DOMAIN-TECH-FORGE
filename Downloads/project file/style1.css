@@ -721,7 +721,7 @@ body {
   width: 100%;
 }
 
-.faculty-view .dashboard-content {
+.dashboard-content.faculty-view {
   padding: 12px 28px;
 }
 
@@ -852,6 +852,14 @@ body {
 
 .faculty-view .analytics-desc {
   margin-bottom: 12px;
+}
+
+.faculty-view .tab-panel {
+  min-height: auto;
+}
+
+.faculty-view #my-reports-verification-card {
+  display: none !important;
 }
 
 .tab-btn {
