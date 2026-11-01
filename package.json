@@ -4,7 +4,7 @@
   "description": "Digital Platform Monitoring Infrastructure of School and Facilities",
   "main": "server.js",
   "scripts": {
-    "build": "echo Static HTML CSS JavaScript project - no compilation required",
+    "build": "node build.js",
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
